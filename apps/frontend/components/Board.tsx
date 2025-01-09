@@ -1,10 +1,12 @@
 'use client'
 
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
+import ColorPicker from './ColorPicker';
 
 const Board = () => {
 
     const canvasRef = useRef<HTMLCanvasElement>(null);
+    const [color, setColor] = useState('#000000'); 
 
     useEffect(() => {
 
@@ -54,7 +56,7 @@ const Board = () => {
 
         // Set initial drawing styles
         if (ctx) {
-            ctx.strokeStyle = "black";
+            ctx.strokeStyle = color;
             ctx.lineWidth = 5;
 
 
@@ -87,12 +89,16 @@ const Board = () => {
 
 
     return (
+        <>
+        <ColorPicker onChange={setColor}/>
         <canvas
             ref={canvasRef}
             width={600}
             height={400}
-            style={{ backgroundColor: 'white' }}
-        />
+            // TODO:: Change color to white
+            style={{ backgroundColor: 'red' }}
+            />
+            </>
     );
 };
 
