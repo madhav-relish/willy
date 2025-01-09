@@ -23,15 +23,12 @@ const page = (props: Props) => {
     <div >
         <div className='flex justify-center'>
 
-        <Menu/>
+        <Menu brushColor={brushColor} setBrushColor={setBrushColor}/>
         </div>
         <div>Welcome to Room: {roomId}</div>
 
         <div className='tools' >
-          <div>
-            <span>Color: </span>
-            <input type="color" value={brushColor} onChange={(e) => setBrushColor(e.target.value)} />
-          </div>
+          
           <div>
             <span>Size: </span>
             <input type="range" color='#fac176'
