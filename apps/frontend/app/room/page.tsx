@@ -2,12 +2,17 @@
 import Board from '@/components/Board';
 import Menu from '@/components/Menu'
 import Whiteboard from '@/components/Whiteboard';
+import { useParams, useSearchParams } from 'next/navigation';
 import React, { useEffect, useState } from 'react'
 import {SketchField, Tools} from 'react-sketch';
 
 type Props = {}
 
 const page = (props: Props) => {
+  const params = useSearchParams();
+  const roomId = params.get('roomId')
+
+  console.log("Room ID:",roomId)
   const [brushColor, setBrushColor] = useState('black');
   const [brushSize, setBrushSize] = useState<number>(5);
 
@@ -20,7 +25,7 @@ const page = (props: Props) => {
 
         <Menu/>
         </div>
-        <div>Welcome to Room: </div>
+        <div>Welcome to Room: {roomId}</div>
 
         <div className='tools' >
           <div>
@@ -34,9 +39,8 @@ const page = (props: Props) => {
             <span>{brushSize}</span>
           </div>
         </div>
-
         {/* <Whiteboard/> */}
-        <Board brushColor={brushColor} brushSize={brushSize} />
+        <Board brushColor={brushColor} brushSize={brushSize} roomId={roomId?.toString() ?? ""}/>
     </div>
   )
 }

@@ -4,11 +4,12 @@ import io, { Socket } from 'socket.io-client';
 interface MyBoard {
     brushColor: string;
     brushSize: number;
+    roomId: string;
 }
 
 const Board: React.FC<MyBoard> = (props) => {
 
-    const { brushColor, brushSize } = props;
+    const { brushColor, brushSize, roomId } = props;
     const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
     const [socket, setSocket] = useState<Socket | null>(null);
@@ -19,29 +20,36 @@ const Board: React.FC<MyBoard> = (props) => {
         setSocket(newSocket);
     }, []);
 
-
     useEffect(() => {
-
         if (socket) {
-            // Event listener for receiving canvas data from the socket
-            socket.on('canvasImage', (data) => {
-                // Create an image object from the data URL
-                const image = new Image();
-                image.src = data;
-
-                const canvas = canvasRef.current;
-                if (canvas) {
-                  const ctx = canvas.getContext('2d');
-                  if (ctx) {
-                    // Draw the image onto the canvas
-                    image.onload = () => {
-                      ctx.drawImage(image, 0, 0);
-                    };
-                  }
-                }
-            });
+          socket.emit('joinRoom', roomId);
+    
+          // Event listener for receiving drawing data from the socket
+          const handleDrawingData = (data: any) => {
+            const { lastX, lastY, currentX, currentY, color, size } = data;
+    
+            const canvas = canvasRef.current;
+            const ctx = canvas && canvas.getContext('2d');
+            if (ctx) {
+              ctx.strokeStyle = color;
+              ctx.lineWidth = size;
+              ctx.lineCap = 'round';
+              ctx.lineJoin = 'round';
+    
+              ctx.beginPath();
+              ctx.moveTo(lastX, lastY);
+              ctx.lineTo(currentX, currentY);
+              ctx.stroke();
+            }
+          };
+    
+          socket.on('drawing', handleDrawingData);
+    
+          return () => {
+            socket.off('drawing', handleDrawingData);
+          };
         }
-    }, [socket]);
+      }, [socket, roomId]);
 
 
     // Function to start drawing
@@ -61,18 +69,31 @@ const Board: React.FC<MyBoard> = (props) => {
         // Function to draw
         const draw = (e: { offsetX: number; offsetY: number; }) => {
             if (!isDrawing) return;
-
+        
             const canvas = canvasRef.current;
             const ctx = canvas && canvas.getContext('2d');
             if (ctx) {
-                ctx.beginPath();
-                ctx.moveTo(lastX, lastY);
-                ctx.lineTo(e.offsetX, e.offsetY);
-                ctx.stroke();
+              ctx.beginPath();
+              ctx.moveTo(lastX, lastY);
+              ctx.lineTo(e.offsetX, e.offsetY);
+              ctx.stroke();
+        
+              // Emit the drawing data to the server
+              if (socket) {
+                socket.emit('drawing', {
+                  roomId,
+                  lastX,
+                  lastY,
+                  currentX: e.offsetX,
+                  currentY: e.offsetY,
+                  color: brushColor,
+                  size: brushSize,
+                });
+              }
             }
-
+        
             [lastX, lastY] = [e.offsetX, e.offsetY];
-        };
+          };
 
         // Function to end drawing
         const endDrawing = () => {
