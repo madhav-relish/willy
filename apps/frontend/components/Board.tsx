@@ -1,3 +1,4 @@
+import { BACKEND_URL } from '@/lib/constants';
 import React, { useRef, useEffect, useState } from 'react';
 import io, { Socket } from 'socket.io-client';
 
@@ -14,33 +15,51 @@ const Board: React.FC<MyBoard> = (props) => {
 
     const [socket, setSocket] = useState<Socket | null>(null);
 
-    useEffect(() => {
-        const newSocket = io('http://localhost:5000');
-        console.log(newSocket, "Connected to socket");
-        setSocket(newSocket);
-    }, []);
+useEffect(()=>{
+  const newSocket = io('http://localhost:5000');
+  console.log(newSocket, "Connected to socket");
+  setSocket(newSocket);
+  return () => {newSocket.disconnect()}
+},[])
+
 
     useEffect(() => {
         if (socket) {
           socket.emit('joinRoom', roomId);
     
-          // Event listener for receiving drawing data from the socket
+          const fetchDrawings = async () => {
+              const response = await fetch(BACKEND_URL+`/api/drawings/${roomId}`);
+              if (response.ok) {
+                  const drawings = await response.json();
+                  const ctx = canvasRef.current?.getContext('2d');
+                  if (ctx) {
+                      drawings.forEach((drawing: any) => {
+                          const data = JSON.parse(drawing.data);
+                          ctx.strokeStyle = data.color;
+                          ctx.lineWidth = data.size;
+                          ctx.beginPath();
+                          ctx.moveTo(data.lastX, data.lastY);
+                          ctx.lineTo(data.currentX, data.currentY);
+                          ctx.stroke();
+                      });
+                  }
+              }
+          };
+
+          fetchDrawings();
+
           const handleDrawingData = (data: any) => {
-            const { lastX, lastY, currentX, currentY, color, size } = data;
-    
-            const canvas = canvasRef.current;
-            const ctx = canvas && canvas.getContext('2d');
-            if (ctx) {
-              ctx.strokeStyle = color;
-              ctx.lineWidth = size;
-              ctx.lineCap = 'round';
-              ctx.lineJoin = 'round';
-    
-              ctx.beginPath();
-              ctx.moveTo(lastX, lastY);
-              ctx.lineTo(currentX, currentY);
-              ctx.stroke();
-            }
+              const { lastX, lastY, currentX, currentY, color, size } = data;
+              const canvas = canvasRef.current;
+              const ctx = canvas && canvas.getContext('2d');
+              if (ctx) {
+                  ctx.strokeStyle = color;
+                  ctx.lineWidth = size;
+                  ctx.beginPath();
+                  ctx.moveTo(lastX, lastY);
+                  ctx.lineTo(currentX, currentY);
+                  ctx.stroke();
+              }
           };
     
           socket.on('drawing', handleDrawingData);
@@ -80,7 +99,7 @@ const Board: React.FC<MyBoard> = (props) => {
         
               // Emit the drawing data to the server
               if (socket) {
-                socket.emit('drawing', {
+                const drawingData = {
                   roomId,
                   lastX,
                   lastY,
@@ -88,8 +107,16 @@ const Board: React.FC<MyBoard> = (props) => {
                   currentY: e.offsetY,
                   color: brushColor,
                   size: brushSize,
-                });
+              };
+                socket.emit('drawing', drawingData);
+                // Save drawing data to the backend
+               fetch(BACKEND_URL+'/api/drawings', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(drawingData),
+            });
               }
+              
             }
         
             [lastX, lastY] = [e.offsetX, e.offsetY];
@@ -159,6 +186,8 @@ const Board: React.FC<MyBoard> = (props) => {
             window.removeEventListener('resize', handleWindowResize);
         };
     }, []);
+
+
 
 
     return (
