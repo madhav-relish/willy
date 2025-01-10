@@ -16,7 +16,7 @@ const Board: React.FC<MyBoard> = (props) => {
     const [socket, setSocket] = useState<Socket | null>(null);
 
 useEffect(()=>{
-  const newSocket = io('http://localhost:5000');
+  const newSocket = io('http://localhost:5001');
   console.log(newSocket, "Connected to socket");
   setSocket(newSocket);
   return () => {newSocket.disconnect()}
@@ -100,14 +100,16 @@ useEffect(()=>{
               // Emit the drawing data to the server
               if (socket) {
                 const drawingData = {
-                  roomId,
-                  lastX,
-                  lastY,
-                  currentX: e.offsetX,
-                  currentY: e.offsetY,
-                  color: brushColor,
-                  size: brushSize,
-              };
+                    roomId,
+                    data: JSON.stringify({
+                      lastX,
+                      lastY,
+                      currentX: e.offsetX,
+                      currentY: e.offsetY,
+                      color: brushColor,
+                      size: brushSize,
+                    }),
+                  };
                 socket.emit('drawing', drawingData);
                 // Save drawing data to the backend
                fetch(BACKEND_URL+'/api/drawings', {

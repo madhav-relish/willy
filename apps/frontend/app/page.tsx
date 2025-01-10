@@ -1,4 +1,5 @@
 'use client';
+import { BACKEND_URL } from '@/lib/constants';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 
@@ -21,9 +22,19 @@ export default function Home() {
     }
   };
 
-  const handleCreateRoom = () => {
+  const handleCreateRoom = async () => {
     const newRoomId = generateRandomRoomId();
-    router.push(`/room?roomId=${newRoomId}`);
+    const response = await fetch(BACKEND_URL+'/api/rooms', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ roomId: newRoomId }),
+    });
+  
+    if (response.ok) {
+      router.push(`/room?roomId=${newRoomId}`);
+    } else {
+      console.error('Failed to create room');
+    }
   };
 
   return (

@@ -5,8 +5,10 @@ const prisma = new PrismaClient();
 
 router.post('/', async (req, res) => {
   const { roomId } = req.body;
+  console.log("Room creation Triggered::", roomId)
   try {
     const room = await prisma.room.create({ data: { roomId } });
+    console.log('Room created:', room);
     res.status(201).json(room);
   } catch (error) {
     console.error('Error creating room:', error);

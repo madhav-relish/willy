@@ -44,8 +44,9 @@ io.on('connection', (socket) => {
     });
 });
 
-const port = 5000;
-io.listen(port);
-app.listen(port, () => {
-    console.log(`Server is running on port ${port}`);
+const httpPort = 5000;
+const socketPort = 5001;
+io.listen(socketPort);
+app.listen(httpPort, () => {
+    console.log(`Server is running on port ${httpPort}`);
 });

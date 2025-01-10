@@ -6,9 +6,19 @@ const prisma = new PrismaClient();
 router.post('/', async (req, res) => {
   const { roomId, data } = req.body;
   try {
-    const drawing = await prisma.drawing.create({
-      data: { roomId, data: JSON.stringify(data) },
+    // Check if the room exists
+    const roomExists = await prisma.room.findUnique({
+      where: { roomId },
     });
+
+    if (!roomExists) {
+      return res.status(404).json({ error: 'Room not found' });
+    }
+
+    const drawing = await prisma.drawing.create({
+      data: { roomId: roomId, data: data },
+    });
+    console.log('Drawing saved:', drawing);
     res.status(201).json(drawing);
   } catch (error) {
     console.error('Error saving drawing:', error);
