@@ -12,3 +12,18 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+
+ model Room{
+  id  Int @id @default(autoincrement())
+  roomId String @unique
+  createdAt DateTime @default(now())
+  drawings Drawing[]
+ }
+
+ model Drawing{
+  id Int @id @default(autoincrement())
+  roomId String
+  data String
+  createdAt DateTime @default(now())
+  room Room @relation(fields: [roomId], references: [roomId])
+ }
