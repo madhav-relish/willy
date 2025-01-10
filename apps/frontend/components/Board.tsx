@@ -1,180 +1,159 @@
+'use client'
+
 import { BACKEND_URL, SOCKET_URL } from '@/lib/constants';
-import React, { useRef, useEffect, useState } from 'react';
+import React, { useRef, useEffect, useState, useCallback } from 'react';
 import io, { Socket } from 'socket.io-client';
-/* eslint-disable */
+
 interface MyBoard {
     brushColor: string;
     brushSize: number;
     roomId: string;
 }
 
-const Board: React.FC<MyBoard> = (props) => {
+interface DrawingData {
+    lastX: number;
+    lastY: number;
+    currentX: number;
+    currentY: number;
+    color: string;
+    size: number;
+}
 
-    const { brushColor, brushSize, roomId } = props;
+
+const Board: React.FC<MyBoard> = ({ brushColor, brushSize, roomId }) => {
     const canvasRef = useRef<HTMLCanvasElement | null>(null);
-
     const [socket, setSocket] = useState<Socket | null>(null);
+    const [windowSize, setWindowSize] = useState([0, 0]);
 
     useEffect(() => {
         const newSocket = io(SOCKET_URL);
         setSocket(newSocket);
-      
+
         if (roomId) {
-          newSocket.emit('joinRoom', roomId);
-          console.log(`Joined room: ${roomId}`);
+            newSocket.emit('joinRoom', roomId);
+            console.log(`Joined room: ${roomId}`);
         }
-      
+
         return () => {
-          newSocket.disconnect();
+            newSocket.disconnect();
         };
-      }, [roomId]);
-      
+    }, [roomId]);
 
- const fetchDrawings = async () => {
-              const response = await fetch(BACKEND_URL+`/api/drawings/${roomId}`);
-              if (response.ok) {
-                  const drawings = await response.json();
-                  const ctx = canvasRef.current?.getContext('2d');
-                  if (ctx) {
-                      drawings.forEach((drawing: any) => {
-                          const data = JSON.parse(drawing.data);
-                          ctx.strokeStyle = data.color;
-                          ctx.lineWidth = data.size;
-                          ctx.beginPath();
-                          ctx.moveTo(data.lastX, data.lastY);
-                          ctx.lineTo(data.currentX, data.currentY);
-                          ctx.stroke();
-                      });
-                  }
-              }
-          };
-
-
-          useEffect(() => {
-            if (socket) {
-              // Fetch initial drawings when a user joins a room
-              fetchDrawings();
-          
-              // Listen for drawing data from the server
-              const handleDrawingData = (data: any) => {
-                const { lastX, lastY, currentX, currentY, color, size } = JSON.parse(data.data);
-                const canvas = canvasRef.current;
-                const ctx = canvas && canvas.getContext('2d');
-          
-                if (ctx) {
-                  ctx.strokeStyle = color;
-                  ctx.lineWidth = size;
-                  ctx.beginPath();
-                  ctx.moveTo(lastX, lastY);
-                  ctx.lineTo(currentX, currentY);
-                  ctx.stroke();
-                }
-              };
-          
-              socket.on('drawing', handleDrawingData);
-          
-              // Cleanup socket listeners when component unmounts
-              return () => {
-                socket.off('drawing', handleDrawingData);
-              };
+    // Fetch and render existing drawings from the server
+    const fetchDrawings = useCallback(async () => {
+        const response = await fetch(`${BACKEND_URL}/api/drawings/${roomId}`);
+        if (response.ok) {
+            const drawings: { data: string }[] = await response.json();
+            const ctx = canvasRef.current?.getContext('2d');
+            if (ctx) {
+                drawings.forEach((drawing) => {
+                    const data: DrawingData = JSON.parse(drawing.data);
+                    ctx.strokeStyle = data.color;
+                    ctx.lineWidth = data.size;
+                    ctx.beginPath();
+                    ctx.moveTo(data.lastX, data.lastY);
+                    ctx.lineTo(data.currentX, data.currentY);
+                    ctx.stroke();
+                });
             }
-          }, [socket]);
-          
+        }
+    }, [roomId]);
 
+    useEffect(() => {
+        if (socket) {
+            // Fetch initial drawings when a user joins a room
+            fetchDrawings();
+
+            // Listen for drawing data from the server
+            const handleDrawingData = (data: { data: string }) => {
+                const parsedData: DrawingData = JSON.parse(data.data);
+                const { lastX, lastY, currentX, currentY, color, size } = parsedData;
+                const ctx = canvasRef.current?.getContext('2d');
+                if (ctx) {
+                    ctx.strokeStyle = color;
+                    ctx.lineWidth = size;
+                    ctx.beginPath();
+                    ctx.moveTo(lastX, lastY);
+                    ctx.lineTo(currentX, currentY);
+                    ctx.stroke();
+                }
+            };
+
+            socket.on('drawing', handleDrawingData);
+
+            // Cleanup socket listeners when component unmounts
+            return () => {
+                socket.off('drawing', handleDrawingData);
+            };
+        }
+    }, [socket, fetchDrawings]);
 
     // Function to start drawing
     useEffect(() => {
-
-        // Variables to store drawing state
         let isDrawing = false;
         let lastX = 0;
         let lastY = 0;
-        const startDrawing = (e: { offsetX: number; offsetY: number; }) => {
-            isDrawing = true;
 
-            console.log(`drawing started`, brushColor, brushSize);
+        const startDrawing = (e: { offsetX: number; offsetY: number }) => {
+            isDrawing = true;
             [lastX, lastY] = [e.offsetX, e.offsetY];
         };
 
-        // Function to draw
-        let debounceTimeout: NodeJS.Timeout | null = null;
+        const draw = (e: { offsetX: number; offsetY: number }) => {
+            if (!isDrawing) return;
 
-        const draw = (e: { offsetX: number; offsetY: number; }) => {
-          if (!isDrawing) return;
-        
-          const canvas = canvasRef.current;
-          const ctx = canvas && canvas.getContext('2d');
-        
-          if (ctx) {
-            ctx.beginPath();
-            ctx.moveTo(lastX, lastY);
-            ctx.lineTo(e.offsetX, e.offsetY);
-            ctx.stroke();
-        
-            const drawingData = {
-              roomId,
-              data: JSON.stringify({
-                lastX,
-                lastY,
-                currentX: e.offsetX,
-                currentY: e.offsetY,
-                color: brushColor,
-                size: brushSize,
-              }),
-            };
-        
-            // Emit drawing data to the server via WebSocket
-            if (socket) {
-              socket.emit('drawing', drawingData);
-            }
-        
-            // Debounce server request
-            if (debounceTimeout) {
-              clearTimeout(debounceTimeout);
-            }
-            debounceTimeout = setTimeout(() => {
-              fetch(BACKEND_URL + '/api/drawings', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(drawingData),
-              });
-            }, 500); // Delay of 500ms before sending to server
-          }
-        
-          [lastX, lastY] = [e.offsetX, e.offsetY];
-        };
-        
-          
-
-        // Function to end drawing
-        const endDrawing = () => {
             const canvas = canvasRef.current;
-            const dataURL = canvas && canvas.toDataURL(); // Get the data URL of the canvas content
+            const ctx = canvas && canvas.getContext('2d');
 
-            // Send the dataURL or image data to the socket
-            // console.log('drawing ended')
-            if (socket) {
-                socket.emit('canvasImage', dataURL);
-                console.log('drawing ended')
+            if (ctx) {
+                ctx.beginPath();
+                ctx.moveTo(lastX, lastY);
+                ctx.lineTo(e.offsetX, e.offsetY);
+                ctx.stroke();
+
+                const drawingData = {
+                    roomId,
+                    data: JSON.stringify({
+                        lastX,
+                        lastY,
+                        currentX: e.offsetX,
+                        currentY: e.offsetY,
+                        color: brushColor,
+                        size: brushSize,
+                    }),
+                };
+
+                // Emit drawing data to the server via WebSocket
+                socket?.emit('drawing', drawingData);
+
+                // Save drawing immediately to the backend
+                fetch(`${BACKEND_URL}/api/drawings`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(drawingData),
+                }).catch((error) => console.error('Error saving drawing:', error));
             }
+
+            [lastX, lastY] = [e.offsetX, e.offsetY];
+        };
+
+        const endDrawing = () => {
             isDrawing = false;
         };
 
-        const canvas: HTMLCanvasElement | null = canvasRef.current;
-        const ctx = canvasRef.current?.getContext('2d');
+        const canvas = canvasRef.current;
+        const ctx = canvas?.getContext('2d');
 
         // Set initial drawing styles
         if (ctx) {
             ctx.strokeStyle = brushColor;
             ctx.lineWidth = brushSize;
-
             ctx.lineCap = 'round';
             ctx.lineJoin = 'round';
-
         }
+
         // Event listeners for drawing
-        if(canvas){
-            console.log("Canvas1 Triggered")
+        if (canvas) {
             canvas.addEventListener('mousedown', startDrawing);
             canvas.addEventListener('mousemove', draw);
             canvas.addEventListener('mouseup', endDrawing);
@@ -183,8 +162,7 @@ const Board: React.FC<MyBoard> = (props) => {
 
         return () => {
             // Clean up event listeners when component unmounts
-            if(canvas){
-                console.log("Canvas2 Triggered::")
+            if (canvas) {
                 canvas.removeEventListener('mousedown', startDrawing);
                 canvas.removeEventListener('mousemove', draw);
                 canvas.removeEventListener('mouseup', endDrawing);
@@ -193,33 +171,29 @@ const Board: React.FC<MyBoard> = (props) => {
         };
     }, [brushColor, brushSize, socket]);
 
-
-    const [windowSize, setWindowSize] = useState([
-        window.innerWidth,
-        window.innerHeight,
-    ]);
+    // Handle window resize
+   
 
     useEffect(() => {
         const handleWindowResize = () => {
-            setWindowSize([window.innerWidth, window.innerHeight]);
+            if (typeof window !== 'undefined') {
+                setWindowSize([window.innerWidth, window.innerHeight]);
+            }
         };
 
         window.addEventListener('resize', handleWindowResize);
+        handleWindowResize(); // Set initial size
 
         return () => {
             window.removeEventListener('resize', handleWindowResize);
         };
-    }, []);
-
-
-
-
+    }, [roomId]);
     return (
         <canvas
             ref={canvasRef}
-            width={windowSize[0] > 600 ? 600 : 300}
-            height={windowSize[1] > 400 ? 400 : 200}
-            style={{ backgroundColor: 'white' }}
+            width={windowSize[0] > 600 ? windowSize[0]-50 : 300}
+            height={windowSize[1] > 400 ? windowSize[1] - 100 : 200}
+            style={{ backgroundColor: 'white' , }}
         />
     );
 };
