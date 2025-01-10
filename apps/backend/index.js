@@ -6,7 +6,7 @@ const drawingsRouter = require('./routes/drawings');
 
 const app = express();
 const corsOptions = {
-    origin: "http://localhost:3000",
+    origin: FRONTEND_URL,
     methods: ["GET", "POST"],
     allowedHeaders: ["Content-Type"],
 };
@@ -14,7 +14,7 @@ const corsOptions = {
 app.use(cors(corsOptions));
 const io = new Server({
     cors: {
-        origin: "http://localhost:3000",
+        origin: FRONTEND_URL,
     }
 });
 
