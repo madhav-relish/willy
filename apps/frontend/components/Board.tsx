@@ -15,19 +15,22 @@ const Board: React.FC<MyBoard> = (props) => {
 
     const [socket, setSocket] = useState<Socket | null>(null);
 
-useEffect(()=>{
-  const newSocket = io('http://localhost:5001');
-  console.log(newSocket, "Connected to socket");
-  setSocket(newSocket);
-  return () => {newSocket.disconnect()}
-},[])
-
-
     useEffect(() => {
-        if (socket) {
-          socket.emit('joinRoom', roomId);
-    
-          const fetchDrawings = async () => {
+        const newSocket = io('http://localhost:5001');
+        setSocket(newSocket);
+      
+        if (roomId) {
+          newSocket.emit('joinRoom', roomId);
+          console.log(`Joined room: ${roomId}`);
+        }
+      
+        return () => {
+          newSocket.disconnect();
+        };
+      }, [roomId]);
+      
+
+ const fetchDrawings = async () => {
               const response = await fetch(BACKEND_URL+`/api/drawings/${roomId}`);
               if (response.ok) {
                   const drawings = await response.json();
@@ -46,29 +49,37 @@ useEffect(()=>{
               }
           };
 
-          fetchDrawings();
 
-          const handleDrawingData = (data: any) => {
-              const { lastX, lastY, currentX, currentY, color, size } = data;
-              const canvas = canvasRef.current;
-              const ctx = canvas && canvas.getContext('2d');
-              if (ctx) {
+          useEffect(() => {
+            if (socket) {
+              // Fetch initial drawings when a user joins a room
+              fetchDrawings();
+          
+              // Listen for drawing data from the server
+              const handleDrawingData = (data: any) => {
+                const { lastX, lastY, currentX, currentY, color, size } = JSON.parse(data.data);
+                const canvas = canvasRef.current;
+                const ctx = canvas && canvas.getContext('2d');
+          
+                if (ctx) {
                   ctx.strokeStyle = color;
                   ctx.lineWidth = size;
                   ctx.beginPath();
                   ctx.moveTo(lastX, lastY);
                   ctx.lineTo(currentX, currentY);
                   ctx.stroke();
-              }
-          };
-    
-          socket.on('drawing', handleDrawingData);
-    
-          return () => {
-            socket.off('drawing', handleDrawingData);
-          };
-        }
-      }, [socket, roomId]);
+                }
+              };
+          
+              socket.on('drawing', handleDrawingData);
+          
+              // Cleanup socket listeners when component unmounts
+              return () => {
+                socket.off('drawing', handleDrawingData);
+              };
+            }
+          }, [socket]);
+          
 
 
     // Function to start drawing
@@ -88,41 +99,44 @@ useEffect(()=>{
         // Function to draw
         const draw = (e: { offsetX: number; offsetY: number; }) => {
             if (!isDrawing) return;
-        
+          
             const canvas = canvasRef.current;
             const ctx = canvas && canvas.getContext('2d');
+          
             if (ctx) {
               ctx.beginPath();
               ctx.moveTo(lastX, lastY);
               ctx.lineTo(e.offsetX, e.offsetY);
               ctx.stroke();
-        
+          
+              const drawingData = {
+                roomId,
+                data: JSON.stringify({
+                  lastX,
+                  lastY,
+                  currentX: e.offsetX,
+                  currentY: e.offsetY,
+                  color: brushColor,
+                  size: brushSize,
+                }),
+              };
+          
               // Emit the drawing data to the server
               if (socket) {
-                const drawingData = {
-                    roomId,
-                    data: JSON.stringify({
-                      lastX,
-                      lastY,
-                      currentX: e.offsetX,
-                      currentY: e.offsetY,
-                      color: brushColor,
-                      size: brushSize,
-                    }),
-                  };
                 socket.emit('drawing', drawingData);
-                // Save drawing data to the backend
-               fetch(BACKEND_URL+'/api/drawings', {
+              }
+          
+              // Save drawing data to the backend
+              fetch(BACKEND_URL + '/api/drawings', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(drawingData),
-            });
-              }
-              
+              });
+          
+              [lastX, lastY] = [e.offsetX, e.offsetY];
             }
-        
-            [lastX, lastY] = [e.offsetX, e.offsetY];
           };
+          
 
         // Function to end drawing
         const endDrawing = () => {

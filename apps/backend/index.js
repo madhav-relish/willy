@@ -27,22 +27,26 @@ app.use('/api/rooms', roomsRouter);
 app.use('/api/drawings', drawingsRouter);
 
 io.on('connection', (socket) => {
-    console.log('A user connected');
-
-    socket.on('joinRoom', async (roomId) => {
-        socket.join(roomId);
-        console.log(`User joined room: ${roomId}`);
+    console.log('A user connected:', socket.id);
+  
+    // Join a specific room
+    socket.on('joinRoom', (roomId) => {
+      socket.join(roomId);
+      console.log(`User ${socket.id} joined room ${roomId}`);
     });
-
-    socket.on('drawing', (data) => {
-        const { roomId, ...drawingData } = data;
-        socket.to(roomId).emit('drawing', drawingData);
+  
+    // Listen for drawing data and broadcast to the room
+    socket.on('drawing', (drawingData) => {
+      const { roomId } = drawingData;
+  
+      // Broadcast to everyone in the room except the sender
+      socket.to(roomId).emit('drawing', drawingData);
     });
-
+  
     socket.on('disconnect', () => {
-        console.log('A user disconnected');
+      console.log('A user disconnected:', socket.id);
     });
-});
+  });
 
 const httpPort = 5000;
 const socketPort = 5001;
