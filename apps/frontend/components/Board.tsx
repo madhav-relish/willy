@@ -1,4 +1,4 @@
-import { BACKEND_URL } from '@/lib/constants';
+import { BACKEND_URL, SOCKET_URL } from '@/lib/constants';
 import React, { useRef, useEffect, useState } from 'react';
 import io, { Socket } from 'socket.io-client';
 /* eslint-disable */
@@ -16,7 +16,7 @@ const Board: React.FC<MyBoard> = (props) => {
     const [socket, setSocket] = useState<Socket | null>(null);
 
     useEffect(() => {
-        const newSocket = io('http://localhost:5001');
+        const newSocket = io(SOCKET_URL);
         setSocket(newSocket);
       
         if (roomId) {
