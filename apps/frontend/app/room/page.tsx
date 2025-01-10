@@ -30,11 +30,11 @@ const page = (props: Props) => {
       <div className="flex justify-center">
         <Menu handleExitRoom={handleExitRoom} brushColor={brushColor} setBrushColor={setBrushColor} />
       </div>
-      <div className="w-full flex gap-4">
-      <div className="p-2">
-        <div>Welcome to Room: {roomId}</div>
+      <div className=" flex gap-4  p-2">
+      <div className="p-2 bg-gray-300 max-w-60 rounded shadow-md opacity-80">
+        <div className="mb-2">Welcome to Room: <span className="font-semibold underline"> {roomId}</span></div>
         <div>
-          <div>
+          <div className="flex items-center gap-3">
             <span>Size: </span>
             <input
               type="range"
