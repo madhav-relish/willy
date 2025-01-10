@@ -1,85 +1,72 @@
-# Turborepo starter
+# Collaborative Whiteboard App
 
-This is an official starter Turborepo.
+Welcome to the Collaborative Whiteboard App! This application allows users to create and join rooms to collaborate in real-time on a digital whiteboard. Users can draw, erase, and save their progress, which is persisted in a PostgreSQL database. When users rejoin a room, they can see their previous work.
 
-## Using this example
+## Table of Contents
 
-Run the following command:
+- [Technologies Used](#technologies-used)
+- [Getting Started](#getting-started)
+  - [Frontend](#frontend)
+  - [Backend](#backend)
+- [Deployment](#deployment)
+- [Features](#features)
 
-```sh
-npx create-turbo@latest
-```
+## Technologies Used
 
-## What's inside?
+### Frontend
+- **Next.js**: A React framework for server-rendered applications.
+- **Socket.IO**: For real-time communication between clients and the server.
+- **Tailwind CSS**: A utility-first CSS framework for styling.
+- **JavaScript Canvas**: For drawing on the whiteboard.
 
-This Turborepo includes the following packages/apps:
+### Backend
+- **Node.js**: JavaScript runtime for building server-side applications.
+- **Express**: Web framework for Node.js.
+- **Prisma**: ORM for database management.
+- **PostgreSQL**: Relational database for storing user data and drawings.
 
-### Apps and Packages
+## Getting Started
 
-- `docs`: a [Next.js](https://nextjs.org/) app
-- `web`: another [Next.js](https://nextjs.org/) app
-- `@repo/ui`: a stub React component library shared by both `web` and `docs` applications
-- `@repo/eslint-config`: `eslint` configurations (includes `eslint-config-next` and `eslint-config-prettier`)
-- `@repo/typescript-config`: `tsconfig.json`s used throughout the monorepo
+### Frontend
 
-Each package/app is 100% [TypeScript](https://www.typescriptlang.org/).
+To run the frontend application:
 
-### Utilities
+1. Navigate to the `apps/frontend` directory:
+`cd apps/frontend`
 
-This Turborepo has some additional tools already setup for you:
+3. Install dependencies:
+`pnpm install`
 
-- [TypeScript](https://www.typescriptlang.org/) for static type checking
-- [ESLint](https://eslint.org/) for code linting
-- [Prettier](https://prettier.io) for code formatting
+4. Start the development server:
+``pnpm run dev``
 
-### Build
+5. To build the application for production: `pnpm run build`
 
-To build all apps and packages, run the following command:
 
-```
-cd my-turborepo
-pnpm build
-```
+### Backend
 
-### Develop
+To run the backend application:
 
-To develop all apps and packages, run the following command:
+1. Navigate to the `apps/backend` directory:
+`cd apps/backend`
 
-```
-cd my-turborepo
-pnpm dev
-```
+2. Install dependencies:
+`pnpm install`
 
-### Remote Caching
+3. Build the application:
+`pnpm run build`
 
-> [!TIP]
-> Vercel Remote Cache is free for all plans. Get started today at [vercel.com](https://vercel.com/signup?/signup?utm_source=remote-cache-sdk&utm_campaign=free_remote_cache).
+4. Start the server:
+`pnpm start`
 
-Turborepo can use a technique known as [Remote Caching](https://turbo.build/repo/docs/core-concepts/remote-caching) to share cache artifacts across machines, enabling you to share build caches with your team and CI/CD pipelines.
 
-By default, Turborepo will cache locally. To enable Remote Caching you will need an account with Vercel. If you don't have an account you can [create one](https://vercel.com/signup?utm_source=turborepo-examples), then enter the following commands:
+## Deployment
 
-```
-cd my-turborepo
-npx turbo login
-```
+The backend is deployed on Render, and the frontend is deployed on Vercel. Make sure to set up environment variables for both deployments according to your configuration.
 
-This will authenticate the Turborepo CLI with your [Vercel account](https://vercel.com/docs/concepts/personal-accounts/overview).
+## Features
 
-Next, you can link your Turborepo to your Remote Cache by running the following command from the root of your Turborepo:
-
-```
-npx turbo link
-```
-
-## Useful Links
-
-Learn more about the power of Turborepo:
-
-- [Tasks](https://turbo.build/repo/docs/core-concepts/monorepos/running-tasks)
-- [Caching](https://turbo.build/repo/docs/core-concepts/caching)
-- [Remote Caching](https://turbo.build/repo/docs/core-concepts/remote-caching)
-- [Filtering](https://turbo.build/repo/docs/core-concepts/monorepos/filtering)
-- [Configuration Options](https://turbo.build/repo/docs/reference/configuration)
-- [CLI Usage](https://turbo.build/repo/docs/reference/command-line-reference)
-# willy
+- **Real-Time Collaboration**: Multiple users can draw on the whiteboard simultaneously.
+- **Room Management**: Users can create and join rooms using unique identifiers.
+- **Persistent Storage**: User progress is saved in a PostgreSQL database, allowing them to rejoin and see their previous work.
+- **Responsive Design**: The application is styled with Tailwind CSS for a modern look and feel.
