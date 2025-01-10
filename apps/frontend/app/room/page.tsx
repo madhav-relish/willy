@@ -3,16 +3,15 @@
 /* eslint-disable */
 import Board from "@/components/Board";
 import Menu from "@/components/Menu";
-import Whiteboard from "@/components/Whiteboard";
-import { useParams, useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import React, { useEffect, useState } from "react";
-import { SketchField, Tools } from "react-sketch";
 
 type Props = {};
 
 const page = (props: Props) => {
   const params = useSearchParams();
   const roomId = params.get("roomId");
+  const router = useRouter();
 
   console.log("Room ID:", roomId);
   const [brushColor, setBrushColor] = useState("black");
@@ -22,28 +21,35 @@ const page = (props: Props) => {
     console.log("CanvasDrawing ", brushSize);
   }, [brushSize]);
 
-  
+  const handleExitRoom = () => {
+    router.push("/");
+  };
+
   return (
     <div>
       <div className="flex justify-center">
-        <Menu brushColor={brushColor} setBrushColor={setBrushColor} />
+        <Menu handleExitRoom={handleExitRoom} brushColor={brushColor} setBrushColor={setBrushColor} />
       </div>
-      <div>Welcome to Room: {roomId}</div>
-
-      <div className="tools">
+      <div className="w-full flex gap-4">
+      <div className="p-2">
+        <div>Welcome to Room: {roomId}</div>
         <div>
-          <span>Size: </span>
-          <input
-            type="range"
-            color="#fac176"
-            min="1"
-            max="100"
-            value={brushSize}
-            onChange={(e) => setBrushSize(Number(e.target.value))}
-          />
-          <span>{brushSize}</span>
+          <div>
+            <span>Size: </span>
+            <input
+              type="range"
+              color="#fac176"
+              min="1"
+              max="100"
+              value={brushSize}
+              onChange={(e) => setBrushSize(Number(e.target.value))}
+            />
+            <span>{brushSize}</span>
+          </div>
         </div>
       </div>
+      </div>
+
       {/* <Whiteboard/> */}
       <Board
         brushColor={brushColor}
