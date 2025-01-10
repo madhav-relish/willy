@@ -22,7 +22,7 @@ const page = (props: Props) => {
   }, [brushSize]);
 
   const handleExitRoom = () => {
-    router.push("/");
+    router.replace("/");
   };
 
   return (
