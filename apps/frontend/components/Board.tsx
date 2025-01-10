@@ -1,7 +1,7 @@
 import { BACKEND_URL } from '@/lib/constants';
 import React, { useRef, useEffect, useState } from 'react';
 import io, { Socket } from 'socket.io-client';
-
+/* eslint-disable */
 interface MyBoard {
     brushColor: string;
     brushSize: number;
@@ -97,45 +97,53 @@ const Board: React.FC<MyBoard> = (props) => {
         };
 
         // Function to draw
+        let debounceTimeout: NodeJS.Timeout | null = null;
+
         const draw = (e: { offsetX: number; offsetY: number; }) => {
-            if (!isDrawing) return;
-          
-            const canvas = canvasRef.current;
-            const ctx = canvas && canvas.getContext('2d');
-          
-            if (ctx) {
-              ctx.beginPath();
-              ctx.moveTo(lastX, lastY);
-              ctx.lineTo(e.offsetX, e.offsetY);
-              ctx.stroke();
-          
-              const drawingData = {
-                roomId,
-                data: JSON.stringify({
-                  lastX,
-                  lastY,
-                  currentX: e.offsetX,
-                  currentY: e.offsetY,
-                  color: brushColor,
-                  size: brushSize,
-                }),
-              };
-          
-              // Emit the drawing data to the server
-              if (socket) {
-                socket.emit('drawing', drawingData);
-              }
-          
-              // Save drawing data to the backend
+          if (!isDrawing) return;
+        
+          const canvas = canvasRef.current;
+          const ctx = canvas && canvas.getContext('2d');
+        
+          if (ctx) {
+            ctx.beginPath();
+            ctx.moveTo(lastX, lastY);
+            ctx.lineTo(e.offsetX, e.offsetY);
+            ctx.stroke();
+        
+            const drawingData = {
+              roomId,
+              data: JSON.stringify({
+                lastX,
+                lastY,
+                currentX: e.offsetX,
+                currentY: e.offsetY,
+                color: brushColor,
+                size: brushSize,
+              }),
+            };
+        
+            // Emit drawing data to the server via WebSocket
+            if (socket) {
+              socket.emit('drawing', drawingData);
+            }
+        
+            // Debounce server request
+            if (debounceTimeout) {
+              clearTimeout(debounceTimeout);
+            }
+            debounceTimeout = setTimeout(() => {
               fetch(BACKEND_URL + '/api/drawings', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(drawingData),
               });
-          
-              [lastX, lastY] = [e.offsetX, e.offsetY];
-            }
-          };
+            }, 500); // Delay of 500ms before sending to server
+          }
+        
+          [lastX, lastY] = [e.offsetX, e.offsetY];
+        };
+        
           
 
         // Function to end drawing

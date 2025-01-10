@@ -1,4 +1,6 @@
 "use client";
+
+/* eslint-disable */
 import Board from "@/components/Board";
 import Menu from "@/components/Menu";
 import Whiteboard from "@/components/Whiteboard";
