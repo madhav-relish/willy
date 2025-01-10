@@ -1,37 +1,44 @@
-
+const express = require('express');
+const cors = require('cors');
 const { Server } = require('socket.io');
-const { PrismaClient } = require('@prisma/client')
+const roomsRouter = require('./routes/rooms');
+const drawingsRouter = require('./routes/drawings');
 
-const prisma = new PrismaClient()
+const app = express();
+const corsOptions = {
+    origin: "http://localhost:3000",
+    methods: ["GET", "POST"],
+    allowedHeaders: ["Content-Type"],
+};
 
+app.use(cors(corsOptions));
 const io = new Server({
     cors: {
         origin: "http://localhost:3000",
     }
 });
 
+
+app.use(express.json());
+app.get('/', (req, res) => {
+    res.send('Server is running');
+});
+app.use('/api/rooms', roomsRouter);
+app.use('/api/drawings', drawingsRouter);
+
 io.on('connection', (socket) => {
     console.log('A user connected');
 
-    socket.on('joinRoom', async(roomId)=>{
-        const roomId = await prisma.room.findUnique({where: {roomId}})
-        if(!roomId){
-            await prisma.room.create({data: {roomId}})
-        }
-        socket.join(roomId)
-        console.log(`User joined room: ${roomId}`)
-    })
+    socket.on('joinRoom', async (roomId) => {
+        socket.join(roomId);
+        console.log(`User joined room: ${roomId}`);
+    });
 
-    socket.on('drawing', async(data) => {
+    socket.on('drawing', (data) => {
         const { roomId, ...drawingData } = data;
-        await prisma.drawing.create({
-            data:{
-                roomId,
-                data: JSON.stringify(drawingData)
-            }
-        })
         socket.to(roomId).emit('drawing', drawingData);
-      });
+    });
+
     socket.on('disconnect', () => {
         console.log('A user disconnected');
     });
@@ -39,4 +46,6 @@ io.on('connection', (socket) => {
 
 const port = 5000;
 io.listen(port);
-console.log(`Server is running on port ${port}`);
+app.listen(port, () => {
+    console.log(`Server is running on port ${port}`);
+});
