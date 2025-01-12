@@ -16,7 +16,7 @@ const Menu = ({brushColor, setBrushColor, handleExitRoom}: Props) => {
   <input
     type="color"
     value={brushColor}
-    className='rounded-full cursor-pointer w-8 h-8 hover:opacity-55' // Updated classes for rounding and size
+    className='rounded-full cursor-pointer w-8 h-8 hover:opacity-55'
     onChange={(e) => setBrushColor(e.target.value)}
   />
 
