@@ -28,26 +28,33 @@ const page = (props: Props) => {
   return (
     <div>
       <div className="flex justify-center">
-        <Menu handleExitRoom={handleExitRoom} brushColor={brushColor} setBrushColor={setBrushColor} />
+        <Menu
+          handleExitRoom={handleExitRoom}
+          brushColor={brushColor}
+          setBrushColor={setBrushColor}
+        />
       </div>
       <div className=" flex gap-4  p-2">
-      <div className="p-2 bg-gray-300 max-w-60 rounded shadow-md opacity-80">
-        <div className="mb-2">Welcome to Room: <span className="font-semibold underline"> {roomId}</span></div>
-        <div>
-          <div className="flex items-center gap-3">
-            <span>Size: </span>
-            <input
-              type="range"
-              color="#fac176"
-              min="1"
-              max="100"
-              value={brushSize}
-              onChange={(e) => setBrushSize(Number(e.target.value))}
-            />
-            <span>{brushSize}</span>
+        <div className="p-2 bg-gray-300 max-w-60 rounded shadow-md opacity-80">
+          <div className="mb-2">
+            Welcome to Room:{" "}
+            <span className="font-semibold underline"> {roomId}</span>
+          </div>
+          <div>
+            <div className="flex items-center gap-3">
+              <span>Size: </span>
+              <input
+                type="range"
+                color="#fac176"
+                min="1"
+                max="100"
+                value={brushSize}
+                onChange={(e) => setBrushSize(Number(e.target.value))}
+              />
+              <span>{brushSize}</span>
+            </div>
           </div>
         </div>
-      </div>
       </div>
 
       {/* <Whiteboard/> */}
