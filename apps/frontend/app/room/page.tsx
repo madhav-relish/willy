@@ -27,13 +27,6 @@ const page = (props: Props) => {
 
   return (
     <div>
-      <div className="flex justify-center">
-        <Menu
-          handleExitRoom={handleExitRoom}
-          brushColor={brushColor}
-          setBrushColor={setBrushColor}
-        />
-      </div>
       <div className=" flex gap-4  p-2">
         <div className="p-2 bg-gray-300 max-w-60 rounded shadow-md opacity-80">
           <div className="mb-2">
@@ -63,6 +56,13 @@ const page = (props: Props) => {
         brushSize={brushSize}
         roomId={roomId?.toString() ?? ""}
       />
+        <div className="fixed bottom-2 left-2">
+        <Menu
+          handleExitRoom={handleExitRoom}
+          brushColor={brushColor}
+          setBrushColor={setBrushColor}
+        />
+      </div>
     </div>
   );
 };
