@@ -39,7 +39,11 @@ app.post('/signin', (req, res) => {
     })
 })
 
-app.post('/room', (req, res) => {
+//create room
+app.post('/create-room', (req, res, middleware) => {
+
+// create the room
+// Return roomID
 
 })
 
