@@ -2,8 +2,6 @@ import { WebSocketServer } from 'ws';
 
 const wss = new WebSocketServer({ port: 8080 });
 
-const JWT_SECRET = "helloworld"
-
 const verifyUser = (token: string) => {
   return token
 }

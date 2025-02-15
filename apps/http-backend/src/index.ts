@@ -1,8 +1,8 @@
+import { JWT_SECRET } from "@repo/backend-common/config"
 import express from "express"
 import jwt from "jsonwebtoken"
 
 const app = express()
-const JWT_SECRET = "helloworld"
 
 // Add zod validation
 //@ts-ignore
