@@ -9,5 +9,12 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "type": "commonjs"
+  "type": "commonjs",
+  "dependencies": {
+    "@prisma/client": "6.2.1",
+    "prisma": "^6.2.1"
+  },
+  "devDependencies": {
+    "@repo/typescript-config": "workspace:*"
+  }
 }
