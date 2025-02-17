@@ -1,4 +1,5 @@
 import { JWT_SECRET } from "@repo/backend-common/config"
+import { prismaClient } from "@repo/db/client"
 import express from "express"
 import jwt from "jsonwebtoken"
 
@@ -13,7 +14,14 @@ app.post('/signup', (req, res) => {
         return res.json({ message: "No data was sent in body" })
     }
     //Create the user
-    const userId = "123123"
+    // const userId = "123123"
+    const userId = prismaClient.user.create({
+        data:{
+            email: userInfo.email,
+            password: userInfo.password,
+            name: userInfo.name
+        }
+    })
     // Sign the jwt
     const token = jwt.sign(userId, JWT_SECRET)
 
@@ -30,7 +38,13 @@ app.post('/signin', (req, res) => {
         return res.json({ message: "No data was sent in body" })
     }
     // Search for the user in DB and get the user ID
-    const userId = "123123"
+    // const userId = "123123"
+    const userId = prismaClient.user.findUnique({
+        where: {
+            email: userInfo.email,
+            password: userInfo.password
+        }
+    })
     // Sign the token
     const token = jwt.sign(userId, JWT_SECRET)
     // Return the token and appropriate info
@@ -44,6 +58,12 @@ app.post('/create-room', (req, res, middleware) => {
 
 // create the room
 // Return roomID
+
+    const roomId = prismaClient.room.create({
+        data: {
+             slug: req
+        }
+    })
 
 })
 
