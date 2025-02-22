@@ -2,7 +2,7 @@ import { JWT_SECRET } from "@repo/backend-common/config"
 import { prismaClient } from "@repo/db/client"
 import express from "express"
 import jwt from "jsonwebtoken"
-import {CreateUserSchema, SigninSchema} from '@repo/common/types'
+import {CreateRoomSchema, CreateUserSchema, SigninSchema} from '@repo/common/types'
 
 const app = express()
 app.use(express.json())
@@ -83,10 +83,28 @@ app.post('/create-room', async(req, res, middleware) => {
 // create the room
 // Return roomID
 
-    const roomId = await prismaClient.room.create({
+const parsedData = CreateRoomSchema.safeParse(req.body)
+
+if(!parsedData.success){
+    console.log("Error while parsing create room data::",parsedData.error)
+    res.json({
+        message: "Incorrect inputs"
+    })
+    return
+}
+
+//@ts-ignore
+const userId = req.userId
+
+    const room = await prismaClient.room.create({
         data: {
-             slug: req
+             slug: parsedData.data.name,
+             adminId: userId
         }
+    })
+
+    res.json({
+        room
     })
 
 })
