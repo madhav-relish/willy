@@ -3,6 +3,7 @@ import { prismaClient } from "@repo/db/client"
 import express from "express"
 import jwt from "jsonwebtoken"
 import { CreateRoomSchema, CreateUserSchema, SigninSchema } from '@repo/common/types'
+import { middleware } from "./middleware"
 
 const app = express()
 app.use(express.json())
@@ -77,7 +78,7 @@ app.post('/signin', async (req, res) => {
 })
 
 //create room
-app.post('/create-room', async (req, res, middleware) => {
+app.post('/create-room',middleware, async (req, res) => {
 
     // create the room
     // Return roomID
