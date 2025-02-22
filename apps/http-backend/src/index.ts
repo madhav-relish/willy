@@ -2,7 +2,7 @@ import { JWT_SECRET } from "@repo/backend-common/config"
 import { prismaClient } from "@repo/db/client"
 import express from "express"
 import jwt from "jsonwebtoken"
-import {CreateUserSchema} from '@repo/common/types'
+import {CreateUserSchema, SigninSchema} from '@repo/common/types'
 
 const app = express()
 app.use(express.json())
@@ -40,25 +40,41 @@ app.post('/signup', async(req, res) => {
 //@ts-ignore
 app.post('/signin', async(req, res) => {
 
-    const userInfo = signInSchemareq.body
-    if (!userInfo) {
-        console.log("No user data recieved in body")
-        return res.json({ message: "No data was sent in body" })
+    const parsedData = SigninSchema.safeParse(req.body)
+    if (!parsedData.success) {
+        console.log(parsedData.error);
+        res.json({
+            message: "Incorrect inputs"
+        })
+        return;
     }
-    // Search for the user in DB and get the user ID
-    // const userId = "123123"
-    const user = await prismaClient.user.findUnique({
-        where: {
-            email: userInfo.email,
-            password: userInfo.password
+    try{
+
+        // Search for the user in DB and get the user ID
+        const user = await prismaClient.user.findUnique({
+            where: {
+                email: parsedData.data.username,
+                password: parsedData.data.password
+            }
+        })
+
+        if (!user) {
+            res.status(403).json({
+                message: "Not authorized"
+            })
+            return;
         }
-    })
-    // Sign the token
-    const token = jwt.sign(user?.id, JWT_SECRET)
-    // Return the token and appropriate info
-    res.json({
-        token
-    })
+    
+        // Sign the token
+        const token = jwt.sign({userId:user?.id}, JWT_SECRET)
+        // Return the token and appropriate info
+        res.json({
+            token
+        })
+    }catch(error){
+        console.log("Error while sign in::", error)
+        res.status(411).json({error})
+    }
 })
 
 //create room
