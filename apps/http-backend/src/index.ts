@@ -7,7 +7,6 @@ import { CreateRoomSchema, CreateUserSchema, SigninSchema } from '@repo/common/t
 const app = express()
 app.use(express.json())
 
-// Add zod validation
 //@ts-ignore
 app.post('/signup', async (req, res) => {
     const parsedData = CreateUserSchema.safeParse(req.body);
@@ -22,7 +21,7 @@ app.post('/signup', async (req, res) => {
         const user = await prismaClient.user.create({
             data: {
                 email: parsedData.data?.username,
-                // TODO: Hash the pw
+                // TODO: Hash the password
                 password: parsedData.data.password,
                 name: parsedData.data.name,
             }
@@ -97,8 +96,6 @@ app.post('/create-room', async (req, res, middleware) => {
     const userId = req.userId
 
     try {
-
-
         const room = await prismaClient.room.create({
             data: {
                 slug: parsedData.data.name,
