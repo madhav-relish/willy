@@ -5,10 +5,9 @@ import jwt from "jsonwebtoken"
 import { CreateRoomSchema, CreateUserSchema, SigninSchema } from '@repo/common/types'
 import { middleware } from "./middleware"
 
-const app = express()
-app.use(express.json())
+const app = express();
+app.use(express.json());
 
-//@ts-ignore
 app.post('/signup', async (req, res) => {
     const parsedData = CreateUserSchema.safeParse(req.body);
     if (!parsedData.success) {
@@ -31,8 +30,9 @@ app.post('/signup', async (req, res) => {
             userId: user.id
         })
     } catch (e) {
+        console.log("Error while signin up::", e)
         res.status(411).json({
-            message: "User already exists with this username"
+            message: "User already exists with this username!!"
         })
     }
 })
@@ -117,4 +117,6 @@ app.post('/create-room',middleware, async (req, res) => {
     }
 })
 
-app.listen(3002)
+app.listen(3002, () => {
+    console.log("Server running on http://localhost:3002");
+});
