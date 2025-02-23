@@ -136,19 +136,24 @@ importers:
         version: link:../../packages/typescript-config
 
   packages/backend-common:
+    dependencies:
+      '@types/node':
+        specifier: ^22.10.5
+        version: 22.13.1
     devDependencies:
       '@repo/typescript-config':
         specifier: workspace:*
         version: link:../typescript-config
-      '@types/node':
-        specifier: ^22.13.1
-        version: 22.13.1
 
   packages/common:
     dependencies:
       zod:
-        specifier: ^3.24.2
+        specifier: ^3.24.1
         version: 3.24.2
+    devDependencies:
+      '@repo/typescript-config':
+        specifier: workspace:*
+        version: link:../typescript-config
 
   packages/db:
     dependencies:
