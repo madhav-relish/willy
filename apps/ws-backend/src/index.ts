@@ -95,6 +95,14 @@ wss.on('connection', function connection(ws, req) {
             userId
           }
         })
+
+        users.forEach(user => {
+          user.ws.send(JSON.stringify({
+            roomId,
+            message,
+            type: "chat"
+          }))
+        })
       }
     }catch(error){
       console.log("Error while parsing the ws data::", error)
@@ -102,7 +110,4 @@ wss.on('connection', function connection(ws, req) {
     
 
   });
-
-
-  ws.send('something');
 });
