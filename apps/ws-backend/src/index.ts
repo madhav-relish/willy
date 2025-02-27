@@ -1,6 +1,7 @@
 import WebSocket, { WebSocketServer } from 'ws';
 import jwt from 'jsonwebtoken'
 import { JWT_SECRET } from '@repo/backend-common/config'
+import {prismaClient } from "@repo/db/client"
 
 const wss = new WebSocketServer({ port: 8080 });
 
@@ -83,6 +84,17 @@ wss.on('connection', function connection(ws, req) {
       console.log("PARSED DATA::", parsedData)
       if(parsedData.type === "chat"){
         console.log("msg::", parsedData.message)
+        const roomId = parsedData.roomId
+        const message = parsedData.message
+
+        //Update the db with latest message to that roomId
+        await prismaClient.chat.create({
+          data:{
+            roomId: Number(roomId),
+            message,
+            userId
+          }
+        })
       }
     }catch(error){
       console.log("Error while parsing the ws data::", error)
