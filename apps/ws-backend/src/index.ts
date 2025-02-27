@@ -58,26 +58,35 @@ wss.on('connection', function connection(ws, req) {
 
 
   ws.on('message', async function message(data) {
-    let parsedData
+    
+    try{
+      let parsedData
 
-    if (typeof data !== 'string') {
-      parsedData = JSON.parse(data.toString())
-    } else {
-      parsedData = JSON.parse(data)
+      if (typeof data !== 'string') {
+        parsedData = JSON.parse(data.toString())
+      } else {
+        parsedData = JSON.parse(data)
+      }
+      
+      
+      if (parsedData.type === "join_room") {
+        const user = users.find(user=> user.ws === ws)
+        user?.rooms.push(parsedData.roomId)
+      }
+      
+      if(parsedData.type === "leave_room"){
+        const user = users.find(user => user.ws === ws)
+        if(!user) return 
+        user.rooms = user.rooms.filter(room => room === parsedData.room)
+      }
+      
+      console.log("PARSED DATA::", parsedData)
+      if(parsedData.type === "chat"){
+        console.log("msg::", parsedData.message)
+      }
+    }catch(error){
+      console.log("Error while parsing the ws data::", error)
     }
-
-
-    if (parsedData.type === "join_room") {
-     const user = users.find(user=> user.ws === ws)
-     user?.rooms.push(parsedData.roomId)
-    }
-
-    if(parsedData.type === "leave_room"){
-      const user = users.find(user => user.ws === ws)
-      if(!user) return 
-      user.rooms = user.rooms.filter(room => room === parsedData.room)
-    }
-
     
 
   });
