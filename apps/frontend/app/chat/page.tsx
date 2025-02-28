@@ -14,7 +14,23 @@ const Chat = () => {
     try{
         const response = await axios.post('http://localhost:3002/create-room',{
             name: roomName
-        })
+        },
+    {
+        headers:{
+            Authorization: `Bearer ${localStorage.getItem("accessToken")}`
+        }
+    })
+        toast.success('Room created successfully!')
+        router.push(`/chat/${response.data?.room?.id}`)
+    }catch(error){
+        console.error("Error while creating the room", error)
+        toast.error("Error while creating the room")
+    }
+  }
+
+  const joinRoom = async()=>{
+    try{
+        const response = await axios.post(`http://localhost:3002/room`)
         toast.success('Room created successfully!')
         router.push(`/chat?${response.data?.room?.id}`)
     }catch(error){
