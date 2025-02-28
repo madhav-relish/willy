@@ -51,7 +51,7 @@ const Signin = (props: Props) => {
                     id="email"
                     placeholder="example@gmail.com"
                     type="email"
-                    required
+                    
                     {...register("username")}
                   />
                    {errors.username && <p className="text-red-500 text-sm">{errors.username.message}</p>}
@@ -62,7 +62,7 @@ const Signin = (props: Props) => {
                     type="password"
                     id="password"
                     placeholder="*********"
-                    required
+                    
                     {...register("password")}
                   />
                    {errors.password && <p className="text-red-500 text-sm">{errors.password.message}</p>}
