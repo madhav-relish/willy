@@ -4,9 +4,11 @@ import express from "express"
 import jwt from "jsonwebtoken"
 import { CreateRoomSchema, CreateUserSchema, SigninSchema } from '@repo/common/types'
 import { middleware } from "./middleware"
+const cors=require("cors")
 
 const app = express();
 app.use(express.json());
+app.use(cors())
 
 app.post('/signup', async (req, res) => {
     const parsedData = CreateUserSchema.safeParse(req.body);
@@ -26,8 +28,10 @@ app.post('/signup', async (req, res) => {
                 name: parsedData.data.name,
             }
         })
+        const token = jwt.sign({ userId: user?.id }, JWT_SECRET)
         res.json({
-            userId: user.id
+            userId: user.id,
+            token
         })
     } catch (e) {
         console.log("Error while signin up::", e)
