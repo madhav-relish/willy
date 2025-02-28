@@ -14,10 +14,16 @@ import {  z } from "zod";
 import { CreateUserSchema } from "@repo/common/types";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import axios from "axios";
+import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 
 type signupFormSchema = z.infer<typeof CreateUserSchema>;
 
 const Signup = () => {
+
+  const router = useRouter()
+
   const {
     register,
     handleSubmit,
@@ -26,8 +32,18 @@ const Signup = () => {
     resolver: zodResolver(CreateUserSchema),
   });
 
-  const onSubmit = (data: signupFormSchema)=>{
+  const onSubmit = async(data: signupFormSchema)=>{
     console.log("Submitted data::", data)
+    try{
+      const response = await axios.post(`http://localhost:3002/signup`, data)
+      localStorage.setItem("accessToken", response.data?.token)
+      console.log("DATA::", response.data)
+      toast.success("Signed in successfully!" )
+      router.push('/chat')
+    }catch(error){
+      console.log("Error while submitting the form::", error)
+      toast.error("Error while submitting the form")
+    }
   }
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="flex h-screen justify-center items-center p-2">
