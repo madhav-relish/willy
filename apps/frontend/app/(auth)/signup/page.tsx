@@ -15,11 +15,9 @@ import { CreateUserSchema } from "@repo/common/types";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
-type Props = {};
-
 type signupFormSchema = z.infer<typeof CreateUserSchema>;
 
-const Signup = (props: Props) => {
+const Signup = () => {
   const {
     register,
     handleSubmit,

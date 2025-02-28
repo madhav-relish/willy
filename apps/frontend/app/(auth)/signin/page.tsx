@@ -3,7 +3,6 @@ import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
-  CardDescription,
   CardFooter,
   CardHeader,
   CardTitle,
@@ -15,11 +14,9 @@ import z from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
-type Props = {};
-
 type signinFromValues = z.infer<typeof SigninSchema>;
 
-const Signin = (props: Props) => {
+const Signin = () => {
   const {
     register,
     handleSubmit,
