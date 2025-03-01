@@ -1,16 +1,20 @@
-'use client'
-import { useParams } from 'next/navigation'
+
+import ChatRoom from '@/components/ChatRoom'
 import React from 'react'
 
-type Props = {}
+async function ChatPage({ params }: {
+  params: {
+      slug: string
+  }
+}) {
 
-const Slug = (props: Props) => {
-    const params = useParams()
-    const {slug} = params
-    console.log("SLUG::", slug)
+    console.log("SLUG::", (await params)?.slug)
+    const roomId = (await params)?.slug
   return (
-    <div>Slug</div>
+    <div>
+     <ChatRoom roomId={roomId}/>
+    </div>
   )
 }
 
-export default Slug
+export default ChatPage
