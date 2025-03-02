@@ -35,7 +35,7 @@ const Signin = () => {
       const response = await axios.post(`http://localhost:3002/signin`, data)
       localStorage.setItem("accessToken", response.data?.token)
       toast.success("Signed in successfully!" )
-      router.push('/signin')
+      router.push('/chat')
     }catch(error){
       console.log("Error while submitting the form::", error)
       toast.error("Error while submitting the form")
