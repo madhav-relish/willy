@@ -121,6 +121,46 @@ app.post('/create-room',middleware, async (req, res) => {
     }
 })
 
+app.post('/join-room', middleware, async(req, res) => {
+    try {
+        const { roomId } = req.body;
+
+       if(!roomId){
+        res.status(400).json({message: "RoomId is required!"})
+        return 
+       }
+
+       const numberedRoomId = Number(roomId)
+       //Check if the user is already in the room
+       //@ts-ignore
+       const userId = req.userId
+       const existingUserInRoom = await prismaClient.user.findFirst({
+        where:{
+            id: userId,
+            rooms:{some: {id: numberedRoomId}}
+        }
+       })
+       if (existingUserInRoom) {
+         res.status(400).json({ message: "User already in the room" });
+         return
+    }
+
+    //Add user to the group
+  const room =  await prismaClient.user.update({
+        where:{id: userId},
+        data:{
+            rooms: {connect:{ id: numberedRoomId}}
+        }
+    })
+
+    res.json({ message: "Joined room successfully", roomId });
+    } catch (error) {
+        console.error("Error while joining room::", error);
+        res.status(500).json({ message: "Internal server error" });
+    }
+});
+
+
 app.get("/chats/:roomId", async (req, res) => {
     try {
         const roomId = Number(req.params.roomId);
