@@ -3,6 +3,7 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import axios from "axios";
+
 import { useRouter } from "next/navigation";
 import React, { useState } from "react";
 import { toast } from "sonner";
@@ -30,14 +31,22 @@ const Chat = () => {
 
   const joinRoom = async()=>{
     try{
-        const response = await axios.post(`http://localhost:3002/room`)
-        toast.success('Room created successfully!')
-        router.push(`/chat?${response.data?.room?.id}`)
+        const response = await axios.post(`http://localhost:3002/join-room`,
+       { roomId: roomName},{
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('accessToken')}`
+        }
+       }
+        )
+
+        toast.success('Room Joined successfully!')
+        router.push(`/chat/${response.data?.roomId}`)
     }catch(error){
         console.error("Error while creating the room", error)
         toast.error("Error while creating the room")
     }
   }
+
   return (
     <div>
       <Input
@@ -46,10 +55,10 @@ const Chat = () => {
           console.log("Entered values::", e.target.value);
           setRoomName(e.target.value);
         }}
-        placeholder="Enter a room name"
+        placeholder="Enter a room name or Room Id"
       />
       <Button onClick={handleCreateRoom}>Create Room</Button>
-      <Button>Join Room</Button>
+      <Button onClick={joinRoom}>Join Room</Button>
     </div>
   );
 };
