@@ -16,6 +16,7 @@ const ws = new WebSocket(
 const ChatRoom = (props: Props) => {
   const [socket, setSocket] = useState<WebSocket | null>(null);
   const [message, setMessage] = useState<string>("");
+  const [chatMessages, setChatMessages] = useState([])
 
   useEffect(() => {
     ws.onopen = () => {
@@ -31,21 +32,14 @@ const ChatRoom = (props: Props) => {
 
   const handleSendMessage = () => {
       console.log("Triggered")
-    
-    ws.onopen = ()=>{
-        console.log("Inside ws")
-        setSocket(ws)
         const data = JSON.stringify({
           type: "chat",
           roomId: props.roomId,
           message,
         });
-        ws.send(data);
+       const wsData = ws.send(data);
         console.log("Updated socket:", socket);
         setMessage("");
-    }
-    
-   
   };
 
   if (!socket) {
@@ -67,7 +61,7 @@ const ChatRoom = (props: Props) => {
           onChange={(e) => setMessage(e.target.value)}
           value={message}
         />
-        <Button onClick={handleSendMessage} >
+        <Button onClick={handleSendMessage} disabled={message.length === 0}>
           Send
         </Button>
       </div>
