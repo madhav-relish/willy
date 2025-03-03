@@ -29,10 +29,12 @@ app.post('/signup', async (req, res) => {
             }
         })
         const token = jwt.sign({ userId: user?.id }, JWT_SECRET)
-        res.json({
-            userId: user.id,
-            token
-        })
+        res.cookie("authToken", token, { 
+            httpOnly: true, 
+            sameSite: "strict",
+        });
+    
+        res.json({ message: "Signed up successfully" });
     } catch (e) {
         console.log("Error while signin up::", e)
         res.status(411).json({
@@ -40,6 +42,22 @@ app.post('/signup', async (req, res) => {
         })
     }
 })
+
+app.get("/me", async (req, res) => {
+    const token = req.cookies.authToken;
+    if (!token) { res.status(401).json({ message: "Not authenticated" });
+    return
+}
+
+    try {
+        const decoded = jwt.verify(token, JWT_SECRET);
+        //@ts-ignore
+        const user = await prismaClient.user.findUnique({ where: { id: decoded.userId } });
+        res.json(user);
+    } catch {
+        res.status(401).json({ message: "Invalid token" });
+    }
+});
 
 //@ts-ignore
 app.post('/signin', async (req, res) => {
@@ -72,9 +90,11 @@ app.post('/signin', async (req, res) => {
         // Sign the token
         const token = jwt.sign({ userId: user?.id }, JWT_SECRET)
         // Return the token and appropriate info
-        res.json({
-            token
-        })
+        res.cookie("authToken", token, { 
+            httpOnly: true, 
+            sameSite: "strict",
+        });
+        res.json({ message: "Logged in successfully" });
     } catch (error) {
         console.log("Error while sign in::", error)
         res.status(411).json({ error })
