@@ -2,13 +2,15 @@
 import Loader from "@/components/Loader";
 import { BACKEND_URL } from "@/lib/constants";
 import { generateRandomRoomId } from "@/lib/utils";
+import axios from "axios";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 export default function Home() {
   const [roomId, setRoomId] = useState("");
   const [loadingJoin, setLoadingJoin] = useState(false);
   const [loadingCreate, setLoadingCreate] = useState(false);
+  const [user, setUser] = useState(null);
   const router = useRouter();
 
   const handleJoinRoom = () => {
@@ -35,6 +37,19 @@ export default function Home() {
     }
     setLoadingCreate(false);
   };
+
+  useEffect(() => {
+    const fetchUser = async () => {
+        try {
+            const response = await axios.get("http://localhost:3002/me", { withCredentials: true });
+            setUser(response.data);
+            console.log('USER::', response.data)
+        } catch (error) {
+            console.log("Not authenticated");
+        }
+    };
+    fetchUser();
+}, []);
 
   return (
     <div className="flex flex-col justify-center items-center h-screen gap-2">
