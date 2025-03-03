@@ -2,7 +2,7 @@
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { createRoom } from "@/lib/api";
+import { createRoom, joinRoom } from "@/lib/api";
 import axios from "axios";
 
 import { useRouter } from "next/navigation";
@@ -24,18 +24,12 @@ const Chat = () => {
     }
   }
 
-  const joinRoom = async()=>{
+  const handleJoinRoom = async()=>{
     try{
-        const response = await axios.post(`http://localhost:3002/join-room`,
-       { roomId: userInput},{
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem('accessToken')}`
-        }
-       }
-        )
+       const data = await joinRoom(userInput)
 
         toast.success('Room Joined successfully!')
-        router.push(`/chat/${response.data?.roomId}`)
+        router.push(`/chat/${data?.roomId}`)
     }catch(error){
         console.error("Error while creating the room", error)
         toast.error("Error while creating the room")
@@ -53,7 +47,7 @@ const Chat = () => {
         placeholder="Enter a room name or Room Id"
       />
       <Button onClick={handleCreateRoom}>Create Room</Button>
-      <Button onClick={joinRoom}>Join Room</Button>
+      <Button onClick={handleJoinRoom}>Join Room</Button>
     </div>
   );
 };
