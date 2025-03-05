@@ -56,3 +56,13 @@ export const joinRoom = async (roomId: string)=>{
   }
 }
 
+export const getAllRoomsOfUser = async()=>{
+  try{
+    const response = await apiClient.get('/all-rooms')
+    return response.data
+  }catch(error){
+    console.error("Error while fetching all rooms::", error)
+    throw error;
+  }
+}
+

@@ -2,7 +2,7 @@
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { createRoom, joinRoom } from "@/lib/api";
+import { createRoom, getAllRoomsOfUser, joinRoom } from "@/lib/api";
 
 import { useRouter } from "next/navigation";
 import React, { useState } from "react";
@@ -34,6 +34,16 @@ const Chat = () => {
     }
   }
 
+  const handleGetAllRooms = async()=>{
+    try{
+      const data = await getAllRoomsOfUser()
+      console.log("DATA Rooms::", data)
+    }catch(error){
+      console.error("Error while fetching all room", error)
+      toast.error("Error while fetching all room")
+    }
+  }
+
   return (
     <div>
       <Input
@@ -47,6 +57,7 @@ const Chat = () => {
       />
       <Button className="mr-2" onClick={handleCreateRoom}>Create Room</Button>
       <Button onClick={handleJoinRoom}>Join Room</Button>
+      <Button onClick={handleGetAllRooms}>All Room</Button>
     </div>
   );
 };
