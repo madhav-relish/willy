@@ -4,6 +4,8 @@ import "./globals.css";
 import { Suspense } from "react";
 import { ThemeProvider } from "@/components/ui/ThemeProvider";
 import { Toaster } from "@/components/ui/sonner";
+import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
+import { AppSidebar } from "@/components/AppSidebar";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -36,8 +38,14 @@ export default function RootLayout({
             defaultTheme="dark"
             disableTransitionOnChange
           >
-            {children}
-            <Toaster/>
+            <SidebarProvider>
+              <AppSidebar />
+              <main className="flex">
+                <SidebarTrigger />
+                {children}
+              </main>
+            </SidebarProvider>
+            <Toaster />
           </ThemeProvider>
         </Suspense>
       </body>

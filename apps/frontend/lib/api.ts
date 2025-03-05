@@ -2,7 +2,11 @@ import axios from 'axios';
 import { BACKEND_URL } from './constants';
 
 const BACKEND_ENDPOINT = 'http://localhost:3002'
-const token = localStorage.getItem('accessToken')
+
+let token;
+if (typeof window !== 'undefined') {
+  token = localStorage.getItem('accessToken')
+}
 
 const apiClient = axios.create({
   baseURL: BACKEND_ENDPOINT,

@@ -3,7 +3,6 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { createRoom, joinRoom } from "@/lib/api";
-import axios from "axios";
 
 import { useRouter } from "next/navigation";
 import React, { useState } from "react";
@@ -27,7 +26,6 @@ const Chat = () => {
   const handleJoinRoom = async()=>{
     try{
        const data = await joinRoom(userInput)
-
         toast.success('Room Joined successfully!')
         router.push(`/chat/${data?.roomId}`)
     }catch(error){
