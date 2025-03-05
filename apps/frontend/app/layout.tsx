@@ -4,8 +4,9 @@ import "./globals.css";
 import { Suspense } from "react";
 import { ThemeProvider } from "@/components/ui/ThemeProvider";
 import { Toaster } from "@/components/ui/sonner";
-import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
+import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
+import { Separator } from "@/components/ui/separator";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -40,10 +41,15 @@ export default function RootLayout({
           >
             <SidebarProvider>
               <AppSidebar />
-              <main className="flex">
-                <SidebarTrigger />
-                {children}
-              </main>
+              <SidebarInset>
+    <div className="h-12 w-full p-3 border-b mb-2">
+
+      <SidebarTrigger />
+    </div>
+              <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
+         {children}
+        </div>
+              </SidebarInset>
             </SidebarProvider>
             <Toaster />
           </ThemeProvider>
@@ -52,3 +58,19 @@ export default function RootLayout({
     </html>
   );
 }
+
+/*
+
+  <SidebarInset>
+        <header className="flex h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-12">
+          <div className="flex items-center gap-2 px-4">
+            <SidebarTrigger className="-ml-1" />
+            <Separator orientation="vertical" className="mr-2 h-4" />
+          <div>vvjbiibi</div>
+          </div>
+        </header>
+        <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
+         {children}
+        </div>
+      </SidebarInset>
+*/

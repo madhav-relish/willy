@@ -1,5 +1,6 @@
 "use client";
 import Loader from "@/components/Loader";
+import { SidebarTrigger } from "@/components/ui/sidebar";
 import { BACKEND_URL } from "@/lib/constants";
 import { generateRandomRoomId } from "@/lib/utils";
 import axios from "axios";
