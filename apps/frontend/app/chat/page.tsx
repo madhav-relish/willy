@@ -37,6 +37,7 @@ const Chat = () => {
   return (
     <div>
       <Input
+      className="mb-3"
         value={userInput}
         onChange={(e) => {
           console.log("Entered values::", e.target.value);
@@ -44,7 +45,7 @@ const Chat = () => {
         }}
         placeholder="Enter a room name or Room Id"
       />
-      <Button onClick={handleCreateRoom}>Create Room</Button>
+      <Button className="mr-2" onClick={handleCreateRoom}>Create Room</Button>
       <Button onClick={handleJoinRoom}>Join Room</Button>
     </div>
   );

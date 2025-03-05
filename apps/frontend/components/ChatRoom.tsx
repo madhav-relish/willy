@@ -5,6 +5,7 @@ import { Input } from "./ui/input";
 import { Button } from "./ui/button";
 import { toast } from "sonner";
 import axios from "axios";
+import { getCookie } from "cookies-next/client";
 // import WebSocket from 'ws';
 
 type Props = {
@@ -16,9 +17,9 @@ interface chatMessage {
   message: string;
   roomId: string;
 }
-
+// const token = getCookie('')
 const ws = new WebSocket(
-  `ws://localhost:8080?token=${localStorage.getItem("accessToken")}`
+  `ws://localhost:8080?token=${getCookie("authToken2")}`
 );
 const ChatRoom = (props: Props) => {
   const [socket, setSocket] = useState<WebSocket | null>(null);

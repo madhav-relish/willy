@@ -4,11 +4,18 @@ import express from "express"
 import jwt from "jsonwebtoken"
 import { CreateRoomSchema, CreateUserSchema, SigninSchema } from '@repo/common/types'
 import { middleware } from "./middleware"
-const cors=require("cors")
+import cookieParser from "cookie-parser";
+import cors from 'cors'
 
 const app = express();
+app.use(cookieParser())
+app.use(cors(
+    {
+        origin: 'http://localhost:3000',
+        credentials: true
+    }
+))
 app.use(express.json());
-app.use(cors())
 
 app.post('/signup', async (req, res) => {
     const parsedData = CreateUserSchema.safeParse(req.body);
@@ -90,11 +97,12 @@ app.post('/signin', async (req, res) => {
         // Sign the token
         const token = jwt.sign({ userId: user?.id }, JWT_SECRET)
         // Return the token and appropriate info
-        res.cookie("authToken", token, { 
-            httpOnly: true, 
-            sameSite: "strict",
+          res.cookie("authToken", token, {
+            httpOnly: true,
+            sameSite: "none",  // Required for cross-origin cookies
+            secure: process.env.NODE_ENV !== "development", // Must be true in production
         });
-        res.json({ message: "Logged in successfully" });
+        res.json({ message: "Logged in successfully", token });
     } catch (error) {
         console.log("Error while sign in::", error)
         res.status(411).json({ error })
