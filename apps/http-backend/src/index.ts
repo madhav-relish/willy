@@ -215,6 +215,27 @@ app.get("/chats/:roomId", async (req, res) => {
     
 })
 
+app.get('/all-rooms', middleware, async(req, res)=>{
+    try{
+        //@ts-ignore
+        const userId = req.userId
+        const userWithRooms = await prismaClient.user.findUnique({
+            where: { id: userId },
+            include: { rooms: true }, // 👈 Fetch all rooms the user is part of
+          });
+        
+          if (!userWithRooms) {
+             res.status(404).json({ message: "User not found" });
+             return
+          }
+        
+          res.status(200).json({ rooms: userWithRooms.rooms });
+    }catch(error){
+        console.log("Error while fetching all rooms of the user::", error)
+        res.status(500).json({message: "Error while fetching all rooms"})
+    }
+})
+
 app.listen(3002, () => {
     console.log("Server running on http://localhost:3002");
 });
