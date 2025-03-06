@@ -1,47 +1,55 @@
-"use client"
+"use client";
 
-import * as React from "react"
+import * as React from "react";
 
-
-import { NavMain } from "@/components/nav-main"
-import { NavProjects } from "@/components/nav-projects"
-import { NavUser } from "@/components/nav-user"
-import { TeamSwitcher } from "@/components/team-switcher"
+import { NavMain } from "@/components/nav-main";
+import { NavProjects } from "@/components/nav-projects";
+import { NavUser } from "@/components/nav-user";
+import { TeamSwitcher } from "@/components/team-switcher";
 import {
   Sidebar,
   SidebarContent,
   SidebarFooter,
   SidebarHeader,
   SidebarRail,
-} from "@/components/ui/sidebar"
-import { useUserStore } from "@/lib/store/useUserStore"
-import { sidebarMenu } from "@/lib/constants"
+} from "@/components/ui/sidebar";
+import { useUserStore } from "@/lib/store/useUserStore";
+import { sidebarMenu } from "@/lib/constants";
+import { usePathname } from "next/navigation";
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
-  const { user } = useUserStore(); 
-  
+  const { user } = useUserStore();
+  const pathname = usePathname();
+
+  const [isHidden, setIsHidden] = React.useState(false);
+
+  React.useEffect(() => {
+    const hidden = pathname === "/signin" || pathname === "/signup";
+    setIsHidden(hidden);
+  }, [pathname]);
+
   const updatedSidebarMenu = { ...sidebarMenu };
-  
+
   const roomsSection = updatedSidebarMenu.navMain.find(
     (ele) => ele.title === "Rooms"
   );
 
-   updatedSidebarMenu.user = {
+  updatedSidebarMenu.user = {
     name: user.username || "Username",
     email: user.email || "email",
-    avatar: ""
-   }
-  
-  
+    avatar: "",
+  };
+
   if (roomsSection) {
     roomsSection.items = user.rooms.map((room) => ({
       title: room.slug,
       url: `/chat/${room.id}`,
     }));
   }
-  
+
   return (
-    <Sidebar collapsible="icon" {...props}>
+    <>
+    {isHidden ? <></> :<Sidebar hidden collapsible="icon" {...props}>
       <SidebarHeader>
         <TeamSwitcher teams={updatedSidebarMenu.teams} />
       </SidebarHeader>
@@ -53,6 +61,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <NavUser user={updatedSidebarMenu.user} />
       </SidebarFooter>
       <SidebarRail />
-    </Sidebar>
-  )
+    </Sidebar>}
+    </>
+  );
 }
