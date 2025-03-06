@@ -1,7 +1,7 @@
 import { StringValidation } from 'zod';
 import { create } from 'zustand'
 
-interface Room{
+export interface Room{
   id: string;
   slug: string;
 }
