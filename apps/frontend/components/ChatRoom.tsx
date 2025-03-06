@@ -3,110 +3,82 @@
 import React, { useEffect, useState } from "react";
 import { Input } from "./ui/input";
 import { Button } from "./ui/button";
-import { toast } from "sonner";
 import axios from "axios";
-import { getCookie } from "cookies-next/client";
-// import WebSocket from 'ws';
+import { getAuthToken } from "@/lib/api";
+import { useWebSocket } from "@/hooks/useWebsockets";
+import { useUserStore } from "@/lib/store/useUserStore";
 
 type Props = {
   roomId: string;
 };
 
-interface chatMessage {
-  type: string;
+interface Message {
+  id: string;
   message: string;
-  roomId: string;
+  userId: string;
 }
-// const token = getCookie('')
-const ws = new WebSocket(
-  `ws://localhost:8080?token=${getCookie("authToken2")}`
-);
-const ChatRoom = (props: Props) => {
-  const [socket, setSocket] = useState<WebSocket | null>(null);
-  const [message, setMessage] = useState<string>("");
-  const [chatMessages, setChatMessages] = useState<chatMessage[]>([]);
+
+const ChatRoom = ({ roomId }: Props) => {
+  const token = getAuthToken() || "";
+  const { chatMessages, sendMessage, isConnected } = useWebSocket(
+    roomId,
+    token
+  );
+  const { user } = useUserStore();
+  const [inputText, setInputText] = useState<string>("");
+  const [allMessages, setAllMessages] = useState<Message[]>([]);
 
   useEffect(() => {
-    const fetchMessages = async()=>{
-      try{
-        console.log("TRiggered3::")
-        const response = await axios.get(`http://localhost:3002/chats/${props.roomId}`)
-        setChatMessages(response.data.messages)
-
-        console.log(response.data.messages)
-      }catch(error){
-        console.error("Error while fetching old messages::", error)
+    const fetchMessages = async () => {
+      try {
+        const response = await axios.get<{ messages: Message[] }>(
+          `http://localhost:3002/chats/${roomId}`
+        );
+        setAllMessages(response.data.messages);
+        console.log("Fetched messages:", response.data.messages);
+      } catch (error) {
+        console.error("Error fetching old messages:", error);
       }
+    };
+    fetchMessages();
+  }, [roomId]);
+
+  useEffect(() => {
+    if (chatMessages) {
+      console.log(chatMessages);
+      setAllMessages((prev) => [...prev, chatMessages]);
     }
-    fetchMessages()
-    ws.onopen = () => {
-      setSocket(ws);
-      const data = JSON.stringify({
-        type: "join_room",
-        roomId: props.roomId,
-      });
-      console.log(data);
-      ws.send(data);
-    };
-
-    // Handle WebSocket closure
-    ws.onclose = () => {
-      console.log("WebSocket closed");
-      setSocket(null);
-    };
-
-    // Cleanup on unmount
-    return () => {
-      ws.close();
-    };
-  }, [props.roomId]);
-
-    // Listen to the incoming messages
-    //TODO:: is it the best way to do it?
-  ws.onmessage = (event) => {
-    const data = JSON.parse(event.data);
-    console.log("Received message:", data);
-
-    if (data.type === "chat") {
-      setChatMessages((prevMessages) => [...prevMessages, data]);
-    }
-  };
-
-  const handleSendMessage = () => {
-    console.log("Triggered");
-    const data = JSON.stringify({
-      type: "chat",
-      roomId: props.roomId,
-      message,
-    });
-    const wsData = ws.send(data);
-    console.log("Updated socket:", socket);
-    setMessage("");
-  };
-
-  if (!socket) {
-    return <div>Connecting to server....</div>;
-  }
+  }, [chatMessages]);
 
   return (
-    <div className="flex flex-col  gap-4 p-4">
-      ChatRoom : {props.roomId}
-      {/* Chat bubbles */}
-      <div className="flex flex-col gap-2 w-fit mb-10">
-        {chatMessages?.map((message, index) => (
-          <span key={index} className="bg-teal-500 dark:text-white text-black rounded-lg p-2">
-            {message.message}
-          </span>
+    <div className="flex flex-col gap-4 p-4 pb-0">
+      ChatRoom : {roomId}
+      {/* Chat Messages */}
+      <div className="relative flex flex-col gap-2 w-full mb-10">
+        {allMessages?.map((msg, index) => (
+          <div
+            key={index}
+            className={`max-w-[75%] px-4 py-2 rounded-lg ${
+              msg?.userId === user.userId
+                ? "bg-purple-600 text-white self-end" // User's messages on the right
+                : "bg-red-300 text-black self-start" // Other users' messages on the left
+            }`}
+          >
+            {msg?.message}
+          </div>
         ))}
       </div>
-      {/* Input box */}
-      <div className="fixed bottom-0 flex gap-2 w-full px-4 mb-2">
+      {/* Input Box */}
+      <div className="fixed bottom-0 flex gap-2 px-4 py-2 dark:bg-black bg-light">
         <Input
           className="w-full"
-          onChange={(e) => setMessage(e.target.value)}
-          value={message}
+          onChange={(e) => setInputText(e.target.value)}
+          value={inputText}
         />
-        <Button onClick={handleSendMessage} disabled={message.length === 0}>
+        <Button
+          onClick={() => sendMessage(inputText)}
+          disabled={inputText.length === 0 || !isConnected}
+        >
           Send
         </Button>
       </div>

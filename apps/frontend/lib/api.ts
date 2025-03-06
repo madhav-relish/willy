@@ -8,10 +8,8 @@ const BACKEND_ENDPOINT = 'http://localhost:3002'
 
 
 // Helper function to get the token from cookies
-const getAuthToken = () => {
-  console.log("All Cookies:", document.cookie); // Debugging
+export const getAuthToken = () => {
   const token = getCookie("authToken2");
-  console.log("Auth Token:", token); // Debugging
   return token ? token.toString() : null;
 };
 
