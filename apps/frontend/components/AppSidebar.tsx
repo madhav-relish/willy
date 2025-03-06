@@ -13,7 +13,7 @@ import {
   SidebarHeader,
   SidebarRail,
 } from "@/components/ui/sidebar";
-import { useUserStore } from "@/lib/store/useUserStore";
+import { useUserStore } from "@/store/useUserStore";
 import { sidebarMenu } from "@/lib/constants";
 import { usePathname } from "next/navigation";
 

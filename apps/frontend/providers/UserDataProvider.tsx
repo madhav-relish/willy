@@ -1,6 +1,6 @@
 'use client'
 import { getUserDeatils } from '@/lib/api';
-import { useUserStore } from '@/lib/store/useUserStore';
+import { useUserStore } from '@/store/useUserStore';
 import { ReactNode, useEffect } from 'react'
 
 type Props = {}

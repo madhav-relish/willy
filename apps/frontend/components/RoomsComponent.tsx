@@ -2,7 +2,7 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { createRoom, getAllRoomsOfUser, joinRoom } from "@/lib/api";
-import { useUserStore } from "@/lib/store/useUserStore";
+import { useUserStore } from "@/store/useUserStore";
 
 import { useRouter } from "next/navigation";
 import React, { useState } from "react";

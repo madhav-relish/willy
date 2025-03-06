@@ -6,8 +6,18 @@ import { Button } from "./ui/button";
 import axios from "axios";
 import { getAuthToken } from "@/lib/api";
 import { useWebSocket } from "@/hooks/useWebsockets";
-import { useUserStore } from "@/lib/store/useUserStore";
-import { MessageCircleCodeIcon } from "lucide-react";
+import { useUserStore } from "@/store/useUserStore";
+import { MenuSquareIcon, MessageCircleCodeIcon } from "lucide-react";
+import { useTopbar } from "@/store/useTopbar";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+
 
 type Props = {
   roomId: string;
@@ -26,6 +36,7 @@ const ChatRoom = ({ roomId }: Props) => {
     token
   );
   const { user } = useUserStore();
+  const {setTitle, setComponent} = useTopbar()
   const [inputText, setInputText] = useState<string>("");
   const [allMessages, setAllMessages] = useState<Message[]>([]);
 
@@ -45,11 +56,14 @@ const ChatRoom = ({ roomId }: Props) => {
   }, [roomId]);
 
   useEffect(() => {
+    const roomName = user.rooms.find((item) => item.id == roomId)
+    setTitle(roomName?.slug || "")
+    setComponent(<ChatActions roomId={roomId}/>)
     if (chatMessages) {
       console.log(chatMessages);
       setAllMessages((prev) => [...prev, chatMessages]);
     }
-  }, [chatMessages]);
+  }, [chatMessages, user]);
 
   return (
     <div className="flex flex-col h-full gap-4 p-4 pb-0">
@@ -57,7 +71,7 @@ const ChatRoom = ({ roomId }: Props) => {
       {/* Chat Messages */}
       <div className="relative flex flex-col gap-2 w-full mb-10">
         { allMessages.length === 0 
-        ? <div className="flex flex-col h-full items-center justify-center text-xl font-semibold"><MessageCircleCodeIcon size={48}/> Start connecting by sending messages</div>
+        ? <div className="flex flex-col gap-4 h-full items-center justify-center text-xl font-semibold"><MessageCircleCodeIcon size={48}/> Start connecting by sending messages</div>
         : allMessages?.map((msg, index) => (
           <div
             key={index}
@@ -90,3 +104,22 @@ const ChatRoom = ({ roomId }: Props) => {
 };
 
 export default ChatRoom;
+
+const ChatActions = ({roomId}: {roomId:string})=>{
+  return(
+    <DropdownMenu>
+  <DropdownMenuTrigger>
+    <MenuSquareIcon/>
+  </DropdownMenuTrigger>
+  <DropdownMenuContent>
+    <DropdownMenuLabel>Actions</DropdownMenuLabel>
+    <DropdownMenuSeparator />
+    <DropdownMenuItem>RoomId: {roomId} </DropdownMenuItem>
+    <DropdownMenuItem>Leave Room</DropdownMenuItem>
+    <DropdownMenuItem>Team</DropdownMenuItem>
+    <DropdownMenuItem>Subscription</DropdownMenuItem>
+  </DropdownMenuContent>
+</DropdownMenu>
+
+  )
+}
