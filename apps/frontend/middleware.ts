@@ -34,5 +34,5 @@ export async function middleware(req: NextRequest) {
 
 // ✅ Apply middleware to protected routes only
 export const config = {
-  matcher: ["/chat/:path*", "/profile/:path*", "", '/'], 
+  matcher: ["/chat/:path*", "/profile/:path*", "/"], 
 };
