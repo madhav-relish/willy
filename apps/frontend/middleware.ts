@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 
 export async function middleware(req: NextRequest) {
-  const token = req.cookies.get("authToken2")?.value; // Read token from cookies
+  const token = req.cookies.get("authToken2")?.value; 
   console.log("MIDDLE::", token)
 
   // If no token, redirect to signin
@@ -34,5 +34,5 @@ export async function middleware(req: NextRequest) {
 
 // ✅ Apply middleware to protected routes only
 export const config = {
-  matcher: ["/chat/:path*", "/profile/:path*", "/settings/:path*"], // Adjust based on your app
+  matcher: ["/chat/:path*", "/profile/:path*", "", '/'], 
 };
