@@ -21,10 +21,8 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const { user } = useUserStore();
   console.log("USER:::", user);
   
-  // Clone sidebarMenu to avoid mutating the original object
   const updatedSidebarMenu = { ...sidebarMenu };
   
-  // Find the "Rooms" section and update its items
   const roomsSection = updatedSidebarMenu.navMain.find(
     (ele) => ele.title === "Rooms"
   );
@@ -43,8 +41,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     }));
   }
   
-  console.log("Updated Sidebar Menu:::", updatedSidebarMenu);
-  // console.log("SOME::", some)
   return (
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>

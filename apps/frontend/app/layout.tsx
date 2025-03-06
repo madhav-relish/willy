@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
 import { Separator } from "@/components/ui/separator";
+import UserDataProvider from "@/providers/UserDataProvider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -44,6 +45,8 @@ export default function RootLayout({
             disableTransitionOnChange
           >
             <SidebarProvider>
+              <UserDataProvider>
+
               <AppSidebar />
               <SidebarInset>
                 <div className="h-12 w-full p-3 border-b mb-4">
@@ -53,6 +56,7 @@ export default function RootLayout({
                   {children}
                 </div>
               </SidebarInset>
+              </UserDataProvider>
             </SidebarProvider>
             <Toaster />
           </ThemeProvider>
