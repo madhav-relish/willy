@@ -5,7 +5,7 @@ type Props = {}
 
 const Topbar = (props: Props) => {
   return (
-    <div className="h-12 w-full p-3 border-b mb-4">
+    <div className="fixed top-0 bg-background z-50 h-12 w-full p-3 border-b mb-4">
     <SidebarTrigger />
   </div>
   )
