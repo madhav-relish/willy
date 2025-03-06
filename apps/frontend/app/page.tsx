@@ -1,7 +1,9 @@
 "use client";
 import Loader from "@/components/Loader";
 import { SidebarTrigger } from "@/components/ui/sidebar";
+import { getUserDeatils } from "@/lib/api";
 import { BACKEND_URL } from "@/lib/constants";
+import { useUserStore } from "@/lib/store/useUserStore";
 import { generateRandomRoomId } from "@/lib/utils";
 import axios from "axios";
 import { useRouter } from "next/navigation";
@@ -11,7 +13,7 @@ export default function Home() {
   const [roomId, setRoomId] = useState("");
   const [loadingJoin, setLoadingJoin] = useState(false);
   const [loadingCreate, setLoadingCreate] = useState(false);
-  const [user, setUser] = useState(null);
+  const {setUser} = useUserStore()
   const router = useRouter();
 
   const handleJoinRoom = () => {
@@ -42,9 +44,9 @@ export default function Home() {
   useEffect(() => {
     const fetchUser = async () => {
         try {
-            const response = await axios.get("http://localhost:3002/me", { withCredentials: true });
-            setUser(response.data);
-            console.log('USER::', response.data)
+            const data = await getUserDeatils()
+            setUser({email: data?.email, userId: data?.id, username: data?.name, rooms: data?.rooms})
+            console.log('USER::', data)
         } catch (error) {
             console.log("Not authenticated");
         }
