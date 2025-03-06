@@ -18,8 +18,7 @@ import { useUserStore } from "@/lib/store/useUserStore"
 import { sidebarMenu } from "@/lib/constants"
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
-  const { user } = useUserStore();
-  console.log("USER:::", user);
+  const { user } = useUserStore(); 
   
   const updatedSidebarMenu = { ...sidebarMenu };
   
