@@ -7,6 +7,7 @@ import axios from "axios";
 import { getAuthToken } from "@/lib/api";
 import { useWebSocket } from "@/hooks/useWebsockets";
 import { useUserStore } from "@/lib/store/useUserStore";
+import { MessageCircleCodeIcon } from "lucide-react";
 
 type Props = {
   roomId: string;
@@ -51,11 +52,13 @@ const ChatRoom = ({ roomId }: Props) => {
   }, [chatMessages]);
 
   return (
-    <div className="flex flex-col gap-4 p-4 pb-0">
+    <div className="flex flex-col h-full gap-4 p-4 pb-0">
       ChatRoom : {roomId}
       {/* Chat Messages */}
       <div className="relative flex flex-col gap-2 w-full mb-10">
-        {allMessages?.map((msg, index) => (
+        { allMessages.length === 0 
+        ? <div className="flex flex-col h-full items-center justify-center text-xl font-semibold"><MessageCircleCodeIcon size={48}/> Start connecting by sending messages</div>
+        : allMessages?.map((msg, index) => (
           <div
             key={index}
             className={`max-w-[75%] px-4 py-2 rounded-lg ${
@@ -69,7 +72,7 @@ const ChatRoom = ({ roomId }: Props) => {
         ))}
       </div>
       {/* Input Box */}
-      <div className="fixed bottom-0 flex gap-2 px-4 py-2 dark:bg-black bg-light">
+      <div className="fixed max-w-3/4 bottom-0 flex gap-2 px-4 py-2 dark:bg-black bg-light">
         <Input
           className="w-full"
           onChange={(e) => setInputText(e.target.value)}
