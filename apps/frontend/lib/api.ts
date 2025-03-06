@@ -70,7 +70,7 @@ export const getAllRoomsOfUser = async()=>{
 export const getUserDeatils = async()=>{
   try{
     const response = await apiClient.get('/me')
-    return response.data
+    return response.data.user
   }catch(error){
     console.error("Error while fetching userDetails::", error)
     throw error

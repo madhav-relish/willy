@@ -1,9 +1,15 @@
+import { StringValidation } from 'zod';
 import { create } from 'zustand'
+
+interface Room{
+  id: string;
+  slug: string;
+}
 
 interface User {
   username: string;
   userId: string;
-  rooms: string[];
+  rooms: Room[];
   email: string;
 }
 

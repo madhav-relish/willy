@@ -36,11 +36,11 @@ app.post('/signup', async (req, res) => {
             }
         })
         const token = jwt.sign({ userId: user?.id }, JWT_SECRET)
-        res.cookie("authToken", token, { 
-            httpOnly: true, 
+        res.cookie("authToken", token, {
+            httpOnly: true,
             sameSite: "strict",
         });
-    
+
         res.json({ message: "Signed up successfully" });
     } catch (e) {
         console.log("Error while signin up::", e)
@@ -50,18 +50,18 @@ app.post('/signup', async (req, res) => {
     }
 })
 
-app.get("/me", middleware,async (req, res) => {
-//     const token = req.cookies.authToken;
-//     if (!token) { res.status(401).json({ message: "Not authenticated" });
-//     return
-// }
+app.get("/me", middleware, async (req, res) => {
+    //     const token = req.cookies.authToken;
+    //     if (!token) { res.status(401).json({ message: "Not authenticated" });
+    //     return
+    // }
 
     try {
         // const decoded = jwt.verify(token, JWT_SECRET);
         //@ts-ignore
         const userId = req.userId
-        const user = await prismaClient.user.findUnique({ where: { id: userId }, select: {rooms: true, id: true, name: true, email: true} });
-        res.json({user});
+        const user = await prismaClient.user.findUnique({ where: { id: userId }, select: {  id: true, name: true, email: true, rooms: { select: { id: true, slug: true } } } });
+        res.json({ user });
     } catch {
         res.status(401).json({ message: "Invalid token" });
     }
@@ -98,7 +98,7 @@ app.post('/signin', async (req, res) => {
         // Sign the token
         const token = jwt.sign({ userId: user?.id }, JWT_SECRET)
         // Return the token and appropriate info
-          res.cookie("authToken", token, {
+        res.cookie("authToken", token, {
             httpOnly: true,
             sameSite: "none",  // Required for cross-origin cookies
             secure: process.env.NODE_ENV !== "development", // Must be true in production
@@ -111,7 +111,7 @@ app.post('/signin', async (req, res) => {
 })
 
 //create room
-app.post('/create-room',middleware, async (req, res) => {
+app.post('/create-room', middleware, async (req, res) => {
 
     // create the room
     // Return roomID
@@ -150,39 +150,39 @@ app.post('/create-room',middleware, async (req, res) => {
     }
 })
 
-app.post('/join-room', middleware, async(req, res) => {
+app.post('/join-room', middleware, async (req, res) => {
     try {
         const { roomId } = req.body;
 
-       if(!roomId){
-        res.status(400).json({message: "RoomId is required!"})
-        return 
-       }
-
-       const numberedRoomId = Number(roomId)
-       //Check if the user is already in the room
-       //@ts-ignore
-       const userId = req.userId
-       const existingUserInRoom = await prismaClient.user.findFirst({
-        where:{
-            id: userId,
-            rooms:{some: {id: numberedRoomId}}
+        if (!roomId) {
+            res.status(400).json({ message: "RoomId is required!" })
+            return
         }
-       })
-       if (existingUserInRoom) {
-         res.status(400).json({ message: "User already in the room" });
-         return
-    }
 
-    //Add user to the group
-  const room =  await prismaClient.user.update({
-        where:{id: userId},
-        data:{
-            rooms: {connect:{ id: numberedRoomId}}
+        const numberedRoomId = Number(roomId)
+        //Check if the user is already in the room
+        //@ts-ignore
+        const userId = req.userId
+        const existingUserInRoom = await prismaClient.user.findFirst({
+            where: {
+                id: userId,
+                rooms: { some: { id: numberedRoomId } }
+            }
+        })
+        if (existingUserInRoom) {
+            res.status(400).json({ message: "User already in the room" });
+            return
         }
-    })
 
-    res.json({ message: "Joined room successfully", roomId });
+        //Add user to the group
+        const room = await prismaClient.user.update({
+            where: { id: userId },
+            data: {
+                rooms: { connect: { id: numberedRoomId } }
+            }
+        })
+
+        res.json({ message: "Joined room successfully", roomId });
     } catch (error) {
         console.error("Error while joining room::", error);
         res.status(500).json({ message: "Internal server error" });
@@ -207,33 +207,33 @@ app.get("/chats/:roomId", async (req, res) => {
         res.json({
             messages
         })
-    } catch(e) {
+    } catch (e) {
         console.log(e);
         res.json({
             messages: []
         })
     }
-    
+
 })
 
-app.get('/all-rooms', middleware, async(req, res)=>{
-    try{
+app.get('/all-rooms', middleware, async (req, res) => {
+    try {
         //@ts-ignore
         const userId = req.userId
         const userWithRooms = await prismaClient.user.findUnique({
             where: { id: userId },
-            include: { rooms: true }, 
-          });
-        
-          if (!userWithRooms) {
-             res.status(404).json({ message: "User not found" });
-             return
-          }
-        
-          res.status(200).json({ rooms: userWithRooms.rooms });
-    }catch(error){
+            include: { rooms: true },
+        });
+
+        if (!userWithRooms) {
+            res.status(404).json({ message: "User not found" });
+            return
+        }
+
+        res.status(200).json({ rooms: userWithRooms.rooms });
+    } catch (error) {
         console.log("Error while fetching all rooms of the user::", error)
-        res.status(500).json({message: "Error while fetching all rooms"})
+        res.status(500).json({ message: "Error while fetching all rooms" })
     }
 })
 

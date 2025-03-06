@@ -41,7 +41,7 @@ export const sidebarMenu = {
     navMain: [
       {
         title: "Rooms",
-        url: "#",
+        url: "/chat",
         icon: SquareTerminal,
         isActive: true,
         items: [

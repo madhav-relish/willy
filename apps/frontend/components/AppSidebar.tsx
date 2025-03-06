@@ -28,6 +28,13 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const roomsSection = updatedSidebarMenu.navMain.find(
     (ele) => ele.title === "Rooms"
   );
+
+   updatedSidebarMenu.user = {
+    name: user.username || "Username",
+    email: user.email || "email",
+    avatar: ""
+   }
+  
   
   if (roomsSection) {
     roomsSection.items = user.rooms.map((room) => ({
