@@ -50,17 +50,18 @@ app.post('/signup', async (req, res) => {
     }
 })
 
-app.get("/me", async (req, res) => {
-    const token = req.cookies.authToken;
-    if (!token) { res.status(401).json({ message: "Not authenticated" });
-    return
-}
+app.get("/me", middleware,async (req, res) => {
+//     const token = req.cookies.authToken;
+//     if (!token) { res.status(401).json({ message: "Not authenticated" });
+//     return
+// }
 
     try {
-        const decoded = jwt.verify(token, JWT_SECRET);
+        // const decoded = jwt.verify(token, JWT_SECRET);
         //@ts-ignore
-        const user = await prismaClient.user.findUnique({ where: { id: decoded.userId } });
-        res.json(user);
+        const userId = req.userId
+        const user = await prismaClient.user.findUnique({ where: { id: userId }, select: {rooms: true, id: true, name: true, email: true} });
+        res.json({user});
     } catch {
         res.status(401).json({ message: "Invalid token" });
     }
@@ -221,7 +222,7 @@ app.get('/all-rooms', middleware, async(req, res)=>{
         const userId = req.userId
         const userWithRooms = await prismaClient.user.findUnique({
             where: { id: userId },
-            include: { rooms: true }, // 👈 Fetch all rooms the user is part of
+            include: { rooms: true }, 
           });
         
           if (!userWithRooms) {
