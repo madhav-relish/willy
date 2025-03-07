@@ -16,8 +16,19 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
+} from "@/components/ui/dropdown-menu";
+import {
+  InputOTP,
+  InputOTPGroup,
+  InputOTPSeparator,
+  InputOTPSlot,
+} from "@/components/ui/input-otp";
 
+import PasscodePopup from "./PasscodePopup";
+import { toast } from "sonner";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "./ui/dialog";
+import { Label } from "./ui/label";
+import { ChatActions } from "./ChatActions";
 
 type Props = {
   roomId: string;
@@ -36,9 +47,11 @@ const ChatRoom = ({ roomId }: Props) => {
     token
   );
   const { user } = useUserStore();
-  const {setTitle, setComponent} = useTopbar()
+  const { setTitle, setComponent } = useTopbar();
   const [inputText, setInputText] = useState<string>("");
   const [allMessages, setAllMessages] = useState<Message[]>([]);
+  const [isChatLocked, setIsChatLocked] = useState<boolean>(false);
+  const [passcode, setPasscode] = useState("");
 
   useEffect(() => {
     const fetchMessages = async () => {
@@ -47,7 +60,6 @@ const ChatRoom = ({ roomId }: Props) => {
           `http://localhost:3002/chats/${roomId}`
         );
         setAllMessages(response.data.messages);
-        console.log("Fetched messages:", response.data.messages);
       } catch (error) {
         console.error("Error fetching old messages:", error);
       }
@@ -56,36 +68,69 @@ const ChatRoom = ({ roomId }: Props) => {
   }, [roomId]);
 
   useEffect(() => {
-    const roomName = user.rooms.find((item) => item.id == roomId)
-    setTitle(roomName?.slug || "")
-    setComponent(<ChatActions roomId={roomId}/>)
+    const roomName = user.rooms.find((item) => item.id == roomId);
+    setTitle(roomName?.slug || "");
+    setComponent(
+      <ChatActions
+        roomId={roomId}
+        setIsChatLocked={setIsChatLocked}
+        isChatLocked={isChatLocked}
+      />
+    );
     if (chatMessages) {
-      console.log(chatMessages);
       setAllMessages((prev) => [...prev, chatMessages]);
     }
   }, [chatMessages, user]);
 
+  const handleUnlockChat = () => {
+    const savedPasscode = localStorage.getItem(`chat_passcode_${roomId}`);
+    if (savedPasscode === passcode) {
+      setPasscode("");
+      setIsChatLocked(false);
+      toast.success("Chat Unlocked!");
+    } else {
+      toast.error("Incorrect Passcode!");
+    }
+  };
+
   return (
-    <div className="flex flex-col h-full gap-4 p-4 pb-0">
-      ChatRoom : {roomId}
+    <div className={`flex flex-col h-full gap-4 p-4 pb-0 `}>
       {/* Chat Messages */}
-      <div className="relative flex flex-col gap-2 w-full mb-10">
-        { allMessages.length === 0 
-        ? <div className="flex flex-col gap-4 h-full items-center justify-center text-xl font-semibold"><MessageCircleCodeIcon size={48}/> Start connecting by sending messages</div>
-        : allMessages?.map((msg, index) => (
-          <div
-            key={index}
-            className={`max-w-[75%] px-4 py-2 rounded-lg ${
-              msg?.userId === user.userId
-                ? "bg-purple-600 text-white self-end" // User's messages on the right
-                : "bg-red-300 text-black self-start" // Other users' messages on the left
-            }`}
-          >
-            {msg?.message}
-          </div>
-        ))}
-      </div>
-      {/* Input Box */}
+      {isChatLocked ? (
+        <Dialog open={isChatLocked}>
+          <DialogContent>
+            <DialogHeader>Enter Passcode</DialogHeader>
+            <PasscodePopup
+              isOpen={isChatLocked}
+              value={passcode}
+              setValue={(val) => setPasscode(val)}
+            />
+            <Button onClick={handleUnlockChat}>Unlock</Button>
+          </DialogContent>
+        </Dialog>
+      ) : (
+        <div className="relative flex flex-col gap-2 w-full mb-10">
+          {allMessages.length === 0 ? (
+            <div className="flex flex-col gap-4 h-full items-center justify-center text-xl font-semibold">
+              <MessageCircleCodeIcon size={48} /> Start connecting by sending
+              messages
+            </div>
+          ) : (
+            allMessages?.map((msg, index) => (
+              <div
+                key={index}
+                className={`max-w-[75%] px-4 py-2 rounded-lg ${
+                  msg?.userId === user.userId
+                    ? "bg-purple-600 text-white self-end"
+                    : "bg-red-300 text-black self-start"
+                }`}
+              >
+                {msg?.message}
+              </div>
+            ))
+          )}
+        </div>
+      )}
       <div className="fixed max-w-3/4 bottom-0 flex gap-2 px-4 py-2 dark:bg-black bg-light">
         <Input
           className="w-full"
@@ -104,22 +149,3 @@ const ChatRoom = ({ roomId }: Props) => {
 };
 
 export default ChatRoom;
-
-const ChatActions = ({roomId}: {roomId:string})=>{
-  return(
-    <DropdownMenu>
-  <DropdownMenuTrigger>
-    <MenuSquareIcon/>
-  </DropdownMenuTrigger>
-  <DropdownMenuContent>
-    <DropdownMenuLabel>Actions</DropdownMenuLabel>
-    <DropdownMenuSeparator />
-    <DropdownMenuItem>RoomId: {roomId} </DropdownMenuItem>
-    <DropdownMenuItem>Leave Room</DropdownMenuItem>
-    <DropdownMenuItem>Team</DropdownMenuItem>
-    <DropdownMenuItem>Subscription</DropdownMenuItem>
-  </DropdownMenuContent>
-</DropdownMenu>
-
-  )
-}
