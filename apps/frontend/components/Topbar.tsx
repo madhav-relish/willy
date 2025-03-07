@@ -3,11 +3,8 @@ import React, { ReactNode } from 'react'
 import { SidebarTrigger } from './ui/sidebar'
 import { useTopbar } from '@/store/useTopbar'
 
-type Props = {
-  component: ReactNode
-}
 
-const Topbar = (props: Props) => {
+const Topbar = () => {
   const {title, component} = useTopbar()
   return (
     <div className="fixed top-0 flex items-center justify-between bg-background z-50 h-12 w-3/4 p-3 border-b mb-4">

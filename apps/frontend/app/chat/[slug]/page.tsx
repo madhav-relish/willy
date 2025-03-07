@@ -3,16 +3,16 @@ import ChatRoom from '@/components/ChatRoom'
 import React from 'react'
 
 async function ChatPage({ params }: {
-  params: {
+  params: Promise<{
       slug: string
-  }
+  }>
 }) {
-
-    console.log("SLUG::", (await params)?.slug)
+  
     const roomId = (await params)?.slug
+  
   return (
     <div>
-     <ChatRoom roomId={roomId}/>
+     <ChatRoom roomId={roomId || ""}/>
     </div>
   )
 }
