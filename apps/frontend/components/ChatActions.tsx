@@ -32,11 +32,18 @@ export const ChatActions = ({
   const [passcode, setPasscode] = useState("");
   const [confirmPasscode, setConfirmPasscode] = useState("");
   const [isEnteringPasscode, setIsEnteringPasscode] = useState(false);
+  const [savedPasscode, setSavedPasscode] = useState(localStorage.getItem(`chat_passcode_${roomId}`))
 
   useEffect(() => {
-    const savedPasscode = localStorage.getItem(`chat_passcode_${roomId}`);
-    if (savedPasscode) setIsChatLocked(true);
+    if (Boolean(savedPasscode)) setIsChatLocked(true);
   }, [roomId]);
+
+  useEffect(()=>{
+    console.log("Action::", isChatLocked)
+   console.log("Hello",!isChatLocked && Boolean(savedPasscode))
+  },[isChatLocked])
+
+  console.log("ACtion::", isChatLocked)
 
   const handleSetOrUpdatePasscode = () => {
     if (passcode !== confirmPasscode) {
@@ -44,6 +51,7 @@ export const ChatActions = ({
       return;
     }
     localStorage.setItem(`chat_passcode_${roomId}`, passcode);
+    setSavedPasscode(passcode)
     toast.success("Passcode updated successfully!");
     setPasscode("");
     setConfirmPasscode("");
@@ -53,6 +61,7 @@ export const ChatActions = ({
 
   const handleRemovePasscode = () => {
     localStorage.removeItem(`chat_passcode_${roomId}`);
+    setSavedPasscode(null)
     toast.success("Passcode removed successfully!");
     setIsChatLocked(false);
   };
@@ -66,15 +75,15 @@ export const ChatActions = ({
         <DropdownMenuLabel>Actions</DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuItem>RoomId: {roomId} </DropdownMenuItem>
-        {localStorage.getItem(`chat_passcode_${roomId}`) && (
+        {Boolean(savedPasscode) && (
           <DropdownMenuItem onClick={() => setIsChatLocked(true)}>
-            Lock Chat
+           { isChatLocked ? "Unlock" : "Lock" }Chat
           </DropdownMenuItem>
         )}
         <DropdownMenuItem onClick={() => setIsEnteringPasscode(true)}>
-          Set/Update Passcode
+        {Boolean(savedPasscode) ? "Change" : "Set" }  Passcode
         </DropdownMenuItem>
-        {!isChatLocked && localStorage.getItem(`chat_passcode_${roomId}`) && (
+        {!isChatLocked && Boolean(savedPasscode) && (
           <DropdownMenuItem onClick={handleRemovePasscode}>
             Remove Passcode
           </DropdownMenuItem>
@@ -83,19 +92,22 @@ export const ChatActions = ({
       {/* Passcode Dialog */}
       <Dialog open={isEnteringPasscode}>
         <DialogHeader>
-          {/* <DialogTitle>Set/Update Passcode</DialogTitle> */}
           <DialogContent>
-            <Label>Passcode</Label>
+          <DialogTitle> {Boolean(savedPasscode) ? "Change" : "Set" }  Passcode</DialogTitle>
+            <div className="flex flex-col gap-4 justify-center items-center">
+              
+            <Label className="self-center text-xl font-semibold"> {Boolean(savedPasscode) ? "Old" : "" }  Passcode</Label>
             <PasscodePopup value={passcode} setValue={setPasscode} />
-            <Label>Confirm Passcode</Label>
+            <Label className="self-center text-xl font-semibold"> {Boolean(savedPasscode) ? "New" : "Confirm" }  Passcode</Label>
             <PasscodePopup
               value={confirmPasscode}
               setValue={setConfirmPasscode}
-            />
+              />
+              </div>
             <Button
               disabled={!passcode || passcode.length < 6}
               onClick={handleSetOrUpdatePasscode}
-            >
+              >
               Submit
             </Button>
           </DialogContent>

@@ -25,7 +25,7 @@ type Props = {
 const PasscodePopup = ({ isOpen,title, value, setValue }: Props) => {
   return (
     <InputOTP maxLength={6} value={value} onChange={setValue}>
-              <InputOTPGroup >
+              <InputOTPGroup className="border-white">
                 <InputOTPSlot index={0} />
                 <InputOTPSlot index={1} />
                 <InputOTPSlot index={2} />

@@ -7,7 +7,11 @@ import axios from "axios";
 import { getAuthToken } from "@/lib/api";
 import { useWebSocket } from "@/hooks/useWebsockets";
 import { useUserStore } from "@/store/useUserStore";
-import { LockKeyholeIcon, MenuSquareIcon, MessageCircleCodeIcon } from "lucide-react";
+import {
+  LockKeyholeIcon,
+  MenuSquareIcon,
+  MessageCircleCodeIcon,
+} from "lucide-react";
 import { useTopbar } from "@/store/useTopbar";
 import PasscodePopup from "./PasscodePopup";
 import { toast } from "sonner";
@@ -65,7 +69,7 @@ const ChatRoom = ({ roomId }: Props) => {
     if (chatMessages) {
       setAllMessages((prev) => [...prev, chatMessages]);
     }
-  }, [chatMessages, user]);
+  }, [chatMessages, user,isChatLocked]);
 
   const handleUnlockChat = () => {
     const savedPasscode = localStorage.getItem(`chat_passcode_${roomId}`);
@@ -80,57 +84,47 @@ const ChatRoom = ({ roomId }: Props) => {
 
   return (
     <div className={`flex flex-col h-full gap-4 p-4 pb-0 `}>
-      {/* Chat Messages */}
-      {/* {isChatLocked ? (
-        <Dialog open={isChatLocked}>
-          <DialogContent>
-            <DialogHeader>Enter Passcode</DialogHeader>
-            <PasscodePopup
-              isOpen={isChatLocked}
-              value={passcode}
-              setValue={(val) => setPasscode(val)}
-            />
-            <Button onClick={handleUnlockChat}>Unlock</Button>
-          </DialogContent>
-        </Dialog>
-      ) : ( */}
-        <div className="relative flex flex-col gap-2 w-full mb-10 mt-10">
-          {allMessages.length === 0 ? (
-            <div className="flex flex-col gap-4 h-full items-center justify-center text-xl font-semibold">
-              <MessageCircleCodeIcon size={48} /> Start connecting by sending
-              messages
-            </div>
-          ) : (
-           isChatLocked 
-           ? <div className="rounded-lg border p-4 flex flex-col gap-3 justify-center">
+      <div className="relative flex flex-col gap-2 w-full mb-10 mt-10">
+        {/* Empty Chat */}
+        {allMessages.length === 0 ? (
+          <div className="flex flex-col gap-4 h-full items-center justify-center text-xl font-semibold">
+            <MessageCircleCodeIcon size={48} /> Start connecting by sending
+            messages
+          </div>
+        ) : isChatLocked ? (
+          <div className="rounded-lg border p-4 flex flex-col gap-3 justify-center">
             <div className="flex flex-col items-center justify-center gap-3 h-48">
-              <LockKeyholeIcon size={48}/>
+              <LockKeyholeIcon size={48} />
               <div>This Chat is Locked!</div>
             </div>
-            <Label className="self-center text-xl font-semibold">Enter Passcode</Label>
+            <Label className="self-center text-xl font-semibold">
+              Enter Passcode
+            </Label>
             <div className="w-full flex justify-center">
-           <PasscodePopup
-              isOpen={isChatLocked}
-              value={passcode}
-              setValue={(val) => setPasscode(val)}
+              <PasscodePopup
+                isOpen={isChatLocked}
+                value={passcode}
+                setValue={(val) => setPasscode(val)}
               />
-              </div>
+            </div>
             <Button onClick={handleUnlockChat}>Unlock</Button>
-           </div>: allMessages?.map((msg, index) => (
-              <div
-                key={index}
-                className={`max-w-[75%] px-4 py-2 rounded-lg ${
-                  msg?.userId === user.userId
-                    ? "bg-purple-600 text-white self-end"
-                    : "bg-red-300 text-black self-start"
-                }`}
-              >
-                {msg?.message}
-              </div>
-            ))
-          )}
-        </div>
-      {/* )} */}
+            {/* Chat Messages */}
+          </div>
+        ) : (
+          allMessages?.map((msg, index) => (
+            <div
+              key={index}
+              className={`max-w-[75%] px-4 py-2 rounded-lg ${
+                msg?.userId === user.userId
+                  ? "bg-purple-600 text-white self-end"
+                  : "bg-red-300 text-black self-start"
+              }`}
+            >
+              {msg?.message}
+            </div>
+          ))
+        )}
+      </div>
       <div className="fixed max-w-3/4 bottom-0 flex gap-2 px-4 py-2 dark:bg-black bg-light">
         <Input
           className="w-full"
