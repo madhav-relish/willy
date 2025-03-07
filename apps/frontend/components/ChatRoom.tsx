@@ -7,28 +7,13 @@ import axios from "axios";
 import { getAuthToken } from "@/lib/api";
 import { useWebSocket } from "@/hooks/useWebsockets";
 import { useUserStore } from "@/store/useUserStore";
-import { MenuSquareIcon, MessageCircleCodeIcon } from "lucide-react";
+import { LockKeyholeIcon, MenuSquareIcon, MessageCircleCodeIcon } from "lucide-react";
 import { useTopbar } from "@/store/useTopbar";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import {
-  InputOTP,
-  InputOTPGroup,
-  InputOTPSeparator,
-  InputOTPSlot,
-} from "@/components/ui/input-otp";
-
 import PasscodePopup from "./PasscodePopup";
 import { toast } from "sonner";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "./ui/dialog";
-import { Label } from "./ui/label";
 import { ChatActions } from "./ChatActions";
+import { Label } from "./ui/label";
 
 type Props = {
   roomId: string;
@@ -96,7 +81,7 @@ const ChatRoom = ({ roomId }: Props) => {
   return (
     <div className={`flex flex-col h-full gap-4 p-4 pb-0 `}>
       {/* Chat Messages */}
-      {isChatLocked ? (
+      {/* {isChatLocked ? (
         <Dialog open={isChatLocked}>
           <DialogContent>
             <DialogHeader>Enter Passcode</DialogHeader>
@@ -108,15 +93,30 @@ const ChatRoom = ({ roomId }: Props) => {
             <Button onClick={handleUnlockChat}>Unlock</Button>
           </DialogContent>
         </Dialog>
-      ) : (
-        <div className="relative flex flex-col gap-2 w-full mb-10">
+      ) : ( */}
+        <div className="relative flex flex-col gap-2 w-full mb-10 mt-10">
           {allMessages.length === 0 ? (
             <div className="flex flex-col gap-4 h-full items-center justify-center text-xl font-semibold">
               <MessageCircleCodeIcon size={48} /> Start connecting by sending
               messages
             </div>
           ) : (
-            allMessages?.map((msg, index) => (
+           isChatLocked 
+           ? <div className="rounded-lg border p-4 flex flex-col gap-3 justify-center">
+            <div className="flex flex-col items-center justify-center gap-3 h-48">
+              <LockKeyholeIcon size={48}/>
+              <div>This Chat is Locked!</div>
+            </div>
+            <Label className="self-center text-xl font-semibold">Enter Passcode</Label>
+            <div className="w-full flex justify-center">
+           <PasscodePopup
+              isOpen={isChatLocked}
+              value={passcode}
+              setValue={(val) => setPasscode(val)}
+              />
+              </div>
+            <Button onClick={handleUnlockChat}>Unlock</Button>
+           </div>: allMessages?.map((msg, index) => (
               <div
                 key={index}
                 className={`max-w-[75%] px-4 py-2 rounded-lg ${
@@ -130,7 +130,7 @@ const ChatRoom = ({ roomId }: Props) => {
             ))
           )}
         </div>
-      )}
+      {/* )} */}
       <div className="fixed max-w-3/4 bottom-0 flex gap-2 px-4 py-2 dark:bg-black bg-light">
         <Input
           className="w-full"

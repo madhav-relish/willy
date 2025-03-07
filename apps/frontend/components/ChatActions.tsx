@@ -66,21 +66,24 @@ export const ChatActions = ({
         <DropdownMenuLabel>Actions</DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuItem>RoomId: {roomId} </DropdownMenuItem>
-      {localStorage.getItem(`chat_passcode_${roomId}`) &&  <DropdownMenuItem onClick={() => setIsChatLocked(true)}>
-          Lock Chat
-        </DropdownMenuItem>}
+        {localStorage.getItem(`chat_passcode_${roomId}`) && (
+          <DropdownMenuItem onClick={() => setIsChatLocked(true)}>
+            Lock Chat
+          </DropdownMenuItem>
+        )}
         <DropdownMenuItem onClick={() => setIsEnteringPasscode(true)}>
           Set/Update Passcode
         </DropdownMenuItem>
-        {!isChatLocked && localStorage.getItem(`chat_passcode_${roomId}`)  && (
+        {!isChatLocked && localStorage.getItem(`chat_passcode_${roomId}`) && (
           <DropdownMenuItem onClick={handleRemovePasscode}>
             Remove Passcode
           </DropdownMenuItem>
         )}
       </DropdownMenuContent>
+      {/* Passcode Dialog */}
       <Dialog open={isEnteringPasscode}>
         <DialogHeader>
-          <DialogTitle>Set/Update Passcode</DialogTitle>
+          {/* <DialogTitle>Set/Update Passcode</DialogTitle> */}
           <DialogContent>
             <Label>Passcode</Label>
             <PasscodePopup value={passcode} setValue={setPasscode} />
