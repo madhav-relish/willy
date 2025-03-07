@@ -3,6 +3,16 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { Suspense } from "react";
 import { ThemeProvider } from "@/components/ui/ThemeProvider";
+import { Toaster } from "@/components/ui/sonner";
+import {
+  SidebarInset,
+  SidebarProvider,
+  SidebarTrigger,
+} from "@/components/ui/sidebar";
+import { AppSidebar } from "@/components/AppSidebar";
+import { Separator } from "@/components/ui/separator";
+import UserDataProvider from "@/providers/UserDataProvider";
+import Topbar from "@/components/Topbar";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -35,7 +45,18 @@ export default function RootLayout({
             defaultTheme="dark"
             disableTransitionOnChange
           >
-            {children}
+            <SidebarProvider>
+              <UserDataProvider>
+              <AppSidebar />
+              <SidebarInset>
+              <Topbar/>
+                <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
+                  {children}
+                </div>
+              </SidebarInset>
+              </UserDataProvider>
+            </SidebarProvider>
+            <Toaster />
           </ThemeProvider>
         </Suspense>
       </body>

@@ -13,10 +13,15 @@ import { SigninSchema } from "@repo/common/types";
 import z from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import axios from "axios";
+import { toast } from "sonner";
+import { useRouter } from "next/navigation";
+import { setCookie } from "cookies-next/client";
 
 type signinFromValues = z.infer<typeof SigninSchema>;
 
 const Signin = () => {
+  const router = useRouter()
   const {
     register,
     handleSubmit,
@@ -25,8 +30,20 @@ const Signin = () => {
     resolver: zodResolver(SigninSchema),
   });
 
-  const onSubmit = (data: signinFromValues) => {
+  const onSubmit = async(data: signinFromValues) => {
     console.log("Submitted data::", data);
+    try{
+      const response = await axios.post(`http://localhost:3002/signin`, data)
+      // localStorage.setItem("accessToken", response.data?.token)
+      setCookie('authToken2', response.data.token , {
+        maxAge: 30*30*60*24
+      })
+      toast.success("Signed in successfully!" )
+      router.push('/chat')
+    }catch(error){
+      console.log("Error while submitting the form::", error)
+      toast.error("Error while submitting the form")
+    }
   };
 
   return (

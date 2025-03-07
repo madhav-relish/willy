@@ -37,13 +37,15 @@ wss.on('connection', function connection(ws, req) {
   ws.on('error', console.error);
 
   const url = req.url
+  console.log("Full URL:", req.url);
+
   if (!url) {
     return;
   }
 
   const queryParams = new URLSearchParams(url.split("?")[1])
   const token = queryParams.get('token') || ""
-
+  console.log("TOKEN::", token)
   //verify the token
   const userId = verifyUser(token)
   if (!userId || userId === null) {
@@ -88,7 +90,7 @@ wss.on('connection', function connection(ws, req) {
         const message = parsedData.message
 
         //Update the db with latest message to that roomId
-        await prismaClient.chat.create({
+     const chat =   await prismaClient.chat.create({
           data:{
             roomId: Number(roomId),
             message,
@@ -96,10 +98,14 @@ wss.on('connection', function connection(ws, req) {
           }
         })
 
+        console.log("CHAT::", chat)
+
         users.forEach(user => {
           user.ws.send(JSON.stringify({
-            roomId,
-            message,
+            id: chat.id,
+            roomId: chat.roomId,
+            message: chat.message,
+            userId: chat.userId,
             type: "chat"
           }))
         })

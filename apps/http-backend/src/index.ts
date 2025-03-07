@@ -4,8 +4,17 @@ import express from "express"
 import jwt from "jsonwebtoken"
 import { CreateRoomSchema, CreateUserSchema, SigninSchema } from '@repo/common/types'
 import { middleware } from "./middleware"
+import cookieParser from "cookie-parser";
+import cors from 'cors'
 
 const app = express();
+app.use(cookieParser())
+app.use(cors(
+    {
+        origin: 'http://localhost:3000',
+        credentials: true
+    }
+))
 app.use(express.json());
 
 app.post('/signup', async (req, res) => {
@@ -26,9 +35,13 @@ app.post('/signup', async (req, res) => {
                 name: parsedData.data.name,
             }
         })
-        res.json({
-            userId: user.id
-        })
+        const token = jwt.sign({ userId: user?.id }, JWT_SECRET)
+        res.cookie("authToken", token, {
+            httpOnly: true,
+            sameSite: "strict",
+        });
+
+        res.json({ message: "Signed up successfully" });
     } catch (e) {
         console.log("Error while signin up::", e)
         res.status(411).json({
@@ -36,6 +49,23 @@ app.post('/signup', async (req, res) => {
         })
     }
 })
+
+app.get("/me", middleware, async (req, res) => {
+    //     const token = req.cookies.authToken;
+    //     if (!token) { res.status(401).json({ message: "Not authenticated" });
+    //     return
+    // }
+
+    try {
+        // const decoded = jwt.verify(token, JWT_SECRET);
+        //@ts-ignore
+        const userId = req.userId
+        const user = await prismaClient.user.findUnique({ where: { id: userId }, select: {  id: true, name: true, email: true, rooms: { select: { id: true, slug: true } } } });
+        res.json({ user });
+    } catch {
+        res.status(401).json({ message: "Invalid token" });
+    }
+});
 
 //@ts-ignore
 app.post('/signin', async (req, res) => {
@@ -68,9 +98,12 @@ app.post('/signin', async (req, res) => {
         // Sign the token
         const token = jwt.sign({ userId: user?.id }, JWT_SECRET)
         // Return the token and appropriate info
-        res.json({
-            token
-        })
+        res.cookie("authToken", token, {
+            httpOnly: true,
+            sameSite: "none",  // Required for cross-origin cookies
+            secure: process.env.NODE_ENV !== "development", // Must be true in production
+        });
+        res.json({ message: "Logged in successfully", token });
     } catch (error) {
         console.log("Error while sign in::", error)
         res.status(411).json({ error })
@@ -78,7 +111,7 @@ app.post('/signin', async (req, res) => {
 })
 
 //create room
-app.post('/create-room',middleware, async (req, res) => {
+app.post('/create-room', middleware, async (req, res) => {
 
     // create the room
     // Return roomID
@@ -117,6 +150,114 @@ app.post('/create-room',middleware, async (req, res) => {
     }
 })
 
+app.post('/join-room', middleware, async (req, res) => {
+    try {
+        const { roomId } = req.body;
+
+        if (!roomId) {
+            res.status(400).json({ message: "RoomId is required!" })
+            return
+        }
+
+        const numberedRoomId = Number(roomId)
+        //Check if the user is already in the room
+        //@ts-ignore
+        const userId = req.userId
+        const existingUserInRoom = await prismaClient.user.findFirst({
+            where: {
+                id: userId,
+                rooms: { some: { id: numberedRoomId } }
+            }
+        })
+        if (existingUserInRoom) {
+            res.status(400).json({ message: "User already in the room" });
+            return
+        }
+
+        //Add user to the group
+        const room = await prismaClient.user.update({
+            where: { id: userId },
+            data: {
+                rooms: { connect: { id: numberedRoomId } }
+            }
+        })
+
+        res.json({ message: "Joined room successfully", roomId });
+    } catch (error) {
+        console.error("Error while joining room::", error);
+        res.status(500).json({ message: "Internal server error" });
+    }
+});
+
+
+app.get("/chats/:roomId", async (req, res) => {
+    try {
+        const roomId = Number(req.params.roomId);
+        console.log(req.params.roomId);
+        const messages = await prismaClient.chat.findMany({
+            where: {
+                roomId: roomId
+            },
+            orderBy: {
+                id: "asc"
+            },
+            take: 1000
+        });
+
+        res.json({
+            messages
+        })
+    } catch (e) {
+        console.log(e);
+        res.json({
+            messages: []
+        })
+    }
+
+})
+
+app.get('/all-rooms', middleware, async (req, res) => {
+    try {
+        //@ts-ignore
+        const userId = req.userId
+        const userWithRooms = await prismaClient.user.findUnique({
+            where: { id: userId },
+            include: { rooms: true },
+        });
+
+        if (!userWithRooms) {
+            res.status(404).json({ message: "User not found" });
+            return
+        }
+
+        res.status(200).json({ rooms: userWithRooms.rooms });
+    } catch (error) {
+        console.log("Error while fetching all rooms of the user::", error)
+        res.status(500).json({ message: "Error while fetching all rooms" })
+    }
+})
+
 app.listen(3002, () => {
     console.log("Server running on http://localhost:3002");
 });
+
+app.post("/verify-token",middleware, (req, res) => {
+    //@ts-ignore
+    const userId = req.userId
+  
+    if (!userId) {
+       res.status(401).json({ error: "No token provided" });
+       return
+    }
+  
+    // const token = authHeader.split(" ")[1];
+  
+    try {
+       
+       res.status(200).json({ isVerified: true });
+       return
+    } catch (err) {
+       res.status(401).json({ error: "Invalid token" });
+       return
+    }
+  });
