@@ -133,7 +133,7 @@ const ChatRoom = ({ roomId }: Props) => {
         />
         <Button
           onClick={() => sendMessage(inputText)}
-          disabled={inputText.length === 0 || !isConnected}
+          disabled={inputText.length === 0 || !isConnected || isChatLocked}
         >
           Send
         </Button>

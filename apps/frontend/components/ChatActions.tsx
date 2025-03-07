@@ -18,7 +18,7 @@ import { toast } from "sonner";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "./ui/dialog";
 import { Label } from "./ui/label";
 import { useEffect, useState } from "react";
-import { MenuSquareIcon } from "lucide-react";
+import { LockKeyholeIcon, LockKeyholeOpenIcon, MenuSquareIcon, TextSelectIcon, Trash2Icon } from "lucide-react";
 import { Button } from "./ui/button";
 export const ChatActions = ({
   roomId,
@@ -74,18 +74,25 @@ export const ChatActions = ({
       <DropdownMenuContent>
         <DropdownMenuLabel>Actions</DropdownMenuLabel>
         <DropdownMenuSeparator />
-        <DropdownMenuItem>RoomId: {roomId} </DropdownMenuItem>
+        <DropdownMenuItem onClick={()=>{
+          navigator.clipboard.writeText(roomId)
+          toast.success('Coppied to clipboard!')
+        }}> RoomId: {roomId} </DropdownMenuItem>
         {Boolean(savedPasscode) && (
           <DropdownMenuItem onClick={() => setIsChatLocked(true)}>
-           { isChatLocked ? "Unlock" : "Lock" }Chat
+         <span>
+         { isChatLocked ? <LockKeyholeOpenIcon size={16}/> : <LockKeyholeIcon size={16}/> }
+          </span>  
+          { isChatLocked ? "Unlock" : "Lock" } Chat
           </DropdownMenuItem>
         )}
         <DropdownMenuItem onClick={() => setIsEnteringPasscode(true)}>
+          <span><TextSelectIcon size={16}/></span>
         {Boolean(savedPasscode) ? "Change" : "Set" }  Passcode
         </DropdownMenuItem>
         {!isChatLocked && Boolean(savedPasscode) && (
           <DropdownMenuItem onClick={handleRemovePasscode}>
-            Remove Passcode
+           <span><Trash2Icon size={16}/></span> Remove Passcode
           </DropdownMenuItem>
         )}
       </DropdownMenuContent>
