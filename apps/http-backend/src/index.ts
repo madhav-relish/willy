@@ -58,7 +58,7 @@ app.get("/me", middleware, async (req, res) => {
         //@ts-ignore
         const userId = req.userId
         const user = await prismaClient.user.findUnique({ where: { id: userId }, select: {  id: true, name: true, email: true, rooms: { select: { id: true, slug: true } } } });
-        res.json({ user });
+        res.status(200).json({ user });
     } catch {
         res.status(401).json({ message: "Invalid token" });
     }
