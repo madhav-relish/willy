@@ -16,7 +16,7 @@ import { useTopbar } from "@/store/useTopbar";
 import PasscodePopup from "./PasscodePopup";
 import { toast } from "sonner";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "./ui/dialog";
-import { ChatActions } from "./ChatActions";
+import { ChatActions, verifyPasscode } from "./ChatActions";
 import { Label } from "./ui/label";
 
 type Props = {
@@ -71,9 +71,9 @@ const ChatRoom = ({ roomId }: Props) => {
     }
   }, [chatMessages, user,isChatLocked]);
 
-  const handleUnlockChat = () => {
-    const savedPasscode = localStorage.getItem(`chat_passcode_${roomId}`);
-    if (savedPasscode === passcode) {
+  const handleUnlockChat = async() => {
+    const isValid = await verifyPasscode(passcode, roomId);
+    if (isValid) {
       setPasscode("");
       setIsChatLocked(false);
       toast.success("Chat Unlocked!");
@@ -81,6 +81,7 @@ const ChatRoom = ({ roomId }: Props) => {
       toast.error("Incorrect Passcode!");
     }
   };
+
 
   return (
     <div className={`flex flex-col h-full gap-4 p-4 pb-0 `}>
