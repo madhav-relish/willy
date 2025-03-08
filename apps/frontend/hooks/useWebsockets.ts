@@ -32,7 +32,8 @@ export const useWebSocket = (roomId: string, token: string) => {
       if (data.type === "chat") {
         setChatMessages((prev) => [...prev, data]);
         if (data.userId !== user.userId) {
-          showNotification(data.message || "New message", data.gifUrl);
+          const isChatLocked = localStorage.getItem(`chat_passcode_${roomId}`)
+          showNotification(isChatLocked ? "New Message" : data.message ||  "New message", data.gifUrl && '1 New GIF');
         }
       }
     };
