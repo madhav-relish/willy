@@ -6,6 +6,7 @@ import { CreateRoomSchema, CreateUserSchema, SigninSchema } from '@repo/common/t
 import { middleware } from "./middleware"
 import cookieParser from "cookie-parser";
 import cors from 'cors'
+import bcrypt from 'bcryptjs'
 
 const app = express();
 app.use(cookieParser())
@@ -27,11 +28,12 @@ app.post('/signup', async (req, res) => {
         return;
     }
     try {
+        const salt = await bcrypt.genSalt(10)
+        const hashedPassword = await bcrypt.hash(parsedData.data.password, salt)
         const user = await prismaClient.user.create({
             data: {
                 email: parsedData.data?.username,
-                // TODO: Hash the password
-                password: parsedData.data.password,
+                password: hashedPassword,
                 name: parsedData.data.name,
             }
         })
@@ -51,13 +53,8 @@ app.post('/signup', async (req, res) => {
 })
 
 app.get("/me", middleware, async (req, res) => {
-    //     const token = req.cookies.authToken;
-    //     if (!token) { res.status(401).json({ message: "Not authenticated" });
-    //     return
-    // }
 
     try {
-        // const decoded = jwt.verify(token, JWT_SECRET);
         //@ts-ignore
         const userId = req.userId
         const user = await prismaClient.user.findUnique({ where: { id: userId }, select: {  id: true, name: true, email: true, rooms: { select: { id: true, slug: true } } } });
@@ -84,13 +81,21 @@ app.post('/signin', async (req, res) => {
         const user = await prismaClient.user.findUnique({
             where: {
                 email: parsedData.data.username,
-                password: parsedData.data.password
             }
         })
 
         if (!user) {
             res.status(403).json({
-                message: "Not authorized"
+                message: "Incorrect username/email"
+            })
+            return;
+        }
+
+        const isValidPassword = await bcrypt.compare(parsedData.data.password, user.password)
+
+        if(!isValidPassword){
+            res.status(403).json({
+                message: "Incorrect password"
             })
             return;
         }
@@ -249,8 +254,6 @@ app.post("/verify-token",middleware, (req, res) => {
        res.status(401).json({ error: "No token provided" });
        return
     }
-  
-    // const token = authHeader.split(" ")[1];
   
     try {
        

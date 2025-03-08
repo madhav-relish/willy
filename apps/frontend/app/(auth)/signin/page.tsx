@@ -31,7 +31,6 @@ const Signin = () => {
   });
 
   const onSubmit = async(data: signinFromValues) => {
-    console.log("Submitted data::", data);
     try{
       const response = await axios.post(`http://localhost:3002/signin`, data)
       // localStorage.setItem("accessToken", response.data?.token)

@@ -7,17 +7,17 @@ import axios from "axios";
 import { getAuthToken } from "@/lib/api";
 import { useWebSocket } from "@/hooks/useWebsockets";
 import { useUserStore } from "@/store/useUserStore";
-import { MenuSquareIcon, MessageCircleCodeIcon } from "lucide-react";
-import { useTopbar } from "@/store/useTopbar";
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-
+  LockKeyholeIcon,
+  MenuSquareIcon,
+  MessageCircleCodeIcon,
+} from "lucide-react";
+import { useTopbar } from "@/store/useTopbar";
+import PasscodePopup from "./PasscodePopup";
+import { toast } from "sonner";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "./ui/dialog";
+import { ChatActions, verifyPasscode } from "./ChatActions";
+import { Label } from "./ui/label";
 
 type Props = {
   roomId: string;
@@ -36,9 +36,11 @@ const ChatRoom = ({ roomId }: Props) => {
     token
   );
   const { user } = useUserStore();
-  const {setTitle, setComponent} = useTopbar()
+  const { setTitle, setComponent } = useTopbar();
   const [inputText, setInputText] = useState<string>("");
   const [allMessages, setAllMessages] = useState<Message[]>([]);
+  const [isChatLocked, setIsChatLocked] = useState<boolean>(false);
+  const [passcode, setPasscode] = useState("");
 
   useEffect(() => {
     const fetchMessages = async () => {
@@ -47,7 +49,6 @@ const ChatRoom = ({ roomId }: Props) => {
           `http://localhost:3002/chats/${roomId}`
         );
         setAllMessages(response.data.messages);
-        console.log("Fetched messages:", response.data.messages);
       } catch (error) {
         console.error("Error fetching old messages:", error);
       }
@@ -56,36 +57,75 @@ const ChatRoom = ({ roomId }: Props) => {
   }, [roomId]);
 
   useEffect(() => {
-    const roomName = user.rooms.find((item) => item.id == roomId)
-    setTitle(roomName?.slug || "")
-    setComponent(<ChatActions roomId={roomId}/>)
+    const roomName = user.rooms.find((item) => item.id == roomId);
+    setTitle(roomName?.slug || "");
+    setComponent(
+      <ChatActions
+        roomId={roomId}
+        setIsChatLocked={setIsChatLocked}
+        isChatLocked={isChatLocked}
+      />
+    );
     if (chatMessages) {
-      console.log(chatMessages);
       setAllMessages((prev) => [...prev, chatMessages]);
     }
-  }, [chatMessages, user]);
+  }, [chatMessages, user,isChatLocked]);
+
+  const handleUnlockChat = async() => {
+    const isValid = await verifyPasscode(passcode, roomId);
+    if (isValid) {
+      setPasscode("");
+      setIsChatLocked(false);
+      toast.success("Chat Unlocked!");
+    } else {
+      toast.error("Incorrect Passcode!");
+    }
+  };
+
 
   return (
-    <div className="flex flex-col h-full gap-4 p-4 pb-0">
-      ChatRoom : {roomId}
-      {/* Chat Messages */}
-      <div className="relative flex flex-col gap-2 w-full mb-10">
-        { allMessages.length === 0 
-        ? <div className="flex flex-col gap-4 h-full items-center justify-center text-xl font-semibold"><MessageCircleCodeIcon size={48}/> Start connecting by sending messages</div>
-        : allMessages?.map((msg, index) => (
-          <div
-            key={index}
-            className={`max-w-[75%] px-4 py-2 rounded-lg ${
-              msg?.userId === user.userId
-                ? "bg-purple-600 text-white self-end" // User's messages on the right
-                : "bg-red-300 text-black self-start" // Other users' messages on the left
-            }`}
-          >
-            {msg?.message}
+    <div className={`flex flex-col h-full gap-4 p-4 pb-0 `}>
+      <div className="relative flex flex-col gap-2 w-full mb-10 mt-10">
+        {/* Empty Chat */}
+        {allMessages.length === 0 ? (
+          <div className="flex flex-col gap-4 h-full items-center justify-center text-xl font-semibold">
+            <MessageCircleCodeIcon size={48} /> Start connecting by sending
+            messages
           </div>
-        ))}
+        ) : isChatLocked ? (
+          <div className="rounded-lg border p-4 flex flex-col gap-3 justify-center">
+            <div className="flex flex-col items-center justify-center gap-3 h-48">
+              <LockKeyholeIcon size={48} />
+              <div>This Chat is Locked!</div>
+            </div>
+            <Label className="self-center text-xl font-semibold">
+              Enter Passcode
+            </Label>
+            <div className="w-full flex justify-center">
+              <PasscodePopup
+                isOpen={isChatLocked}
+                value={passcode}
+                setValue={(val) => setPasscode(val)}
+              />
+            </div>
+            <Button onClick={handleUnlockChat}>Unlock</Button>
+            {/* Chat Messages */}
+          </div>
+        ) : (
+          allMessages?.map((msg, index) => (
+            <div
+              key={index}
+              className={`max-w-[75%] px-4 py-2 rounded-lg ${
+                msg?.userId === user.userId
+                  ? "bg-purple-600 text-white self-end"
+                  : "bg-red-300 text-black self-start"
+              }`}
+            >
+              {msg?.message}
+            </div>
+          ))
+        )}
       </div>
-      {/* Input Box */}
       <div className="fixed max-w-3/4 bottom-0 flex gap-2 px-4 py-2 dark:bg-black bg-light">
         <Input
           className="w-full"
@@ -94,7 +134,7 @@ const ChatRoom = ({ roomId }: Props) => {
         />
         <Button
           onClick={() => sendMessage(inputText)}
-          disabled={inputText.length === 0 || !isConnected}
+          disabled={inputText.length === 0 || !isConnected || isChatLocked}
         >
           Send
         </Button>
@@ -104,22 +144,3 @@ const ChatRoom = ({ roomId }: Props) => {
 };
 
 export default ChatRoom;
-
-const ChatActions = ({roomId}: {roomId:string})=>{
-  return(
-    <DropdownMenu>
-  <DropdownMenuTrigger>
-    <MenuSquareIcon/>
-  </DropdownMenuTrigger>
-  <DropdownMenuContent>
-    <DropdownMenuLabel>Actions</DropdownMenuLabel>
-    <DropdownMenuSeparator />
-    <DropdownMenuItem>RoomId: {roomId} </DropdownMenuItem>
-    <DropdownMenuItem>Leave Room</DropdownMenuItem>
-    <DropdownMenuItem>Team</DropdownMenuItem>
-    <DropdownMenuItem>Subscription</DropdownMenuItem>
-  </DropdownMenuContent>
-</DropdownMenu>
-
-  )
-}

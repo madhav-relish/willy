@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from "next/server";
 
 export async function middleware(req: NextRequest) {
   const token = req.cookies.get("authToken2")?.value; 
-  console.log("MIDDLE::", token)
 
   // If no token, redirect to signin
   if (!token) {
@@ -18,8 +17,6 @@ export async function middleware(req: NextRequest) {
         Authorization: `Bearer ${token}`,
       },
     });
-
-    console.log("VER:::::", verifyRes.status)
 
     if (!verifyRes.ok) {
       throw new Error("Invalid token");
