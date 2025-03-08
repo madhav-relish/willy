@@ -83,7 +83,6 @@ wss.on('connection', function connection(ws, req) {
         user.rooms = user.rooms.filter(room => room === parsedData.room)
       }
       
-      console.log("PARSED DATA::", parsedData)
       if(parsedData.type === "chat"){
         const { roomId, message, gifUrl } = parsedData;
 

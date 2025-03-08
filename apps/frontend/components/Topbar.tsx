@@ -6,7 +6,7 @@ import { useTopbar } from "@/store/useTopbar";
 const Topbar = () => {
   const { title, component } = useTopbar();
   return (
-    <div className="fixed top-0 flex items-center justify-between bg-background z-50 h-12 w-3/4 p-3 border-b mb-4">
+    <div className="fixed top-0 flex items-center justify-between bg-background z-50 h-12 w-full md:w-3/4 p-3 border-b mb-4">
       <SidebarTrigger />
       <div>
         <div className="flex items-center gap-8">
