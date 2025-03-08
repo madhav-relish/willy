@@ -30,18 +30,18 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 
   const updatedSidebarMenu = { ...sidebarMenu };
 
-  const roomsSection = updatedSidebarMenu.navMain.find(
+  const roomsSection = updatedSidebarMenu?.navMain?.find(
     (ele) => ele.title === "Rooms"
   );
 
   updatedSidebarMenu.user = {
-    name: user.username || "Username",
-    email: user.email || "email",
+    name: user?.username || "Username",
+    email: user?.email || "email",
     avatar: "",
   };
 
   if (roomsSection) {
-    roomsSection.items = user.rooms.map((room) => ({
+    roomsSection.items = user?.rooms?.map((room) => ({
       title: room.slug,
       url: `/chat/${room.id}`,
     }));
@@ -58,7 +58,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <NavProjects projects={updatedSidebarMenu.projects} />
       </SidebarContent>
       <SidebarFooter>
-        <NavUser user={updatedSidebarMenu.user} />
+        <NavUser user={updatedSidebarMenu?.user} />
       </SidebarFooter>
       <SidebarRail />
     </Sidebar>}

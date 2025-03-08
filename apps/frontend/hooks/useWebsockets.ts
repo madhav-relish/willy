@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
 
 export interface ChatMessage {
-  message: string;
+  id: string;
+  message?: string;
+  gifUrl?: string;
   roomId: string;
   userId: string;
-  id: string
 }
 
 export const useWebSocket = (roomId: string, token: string) => {
@@ -41,9 +42,9 @@ export const useWebSocket = (roomId: string, token: string) => {
     };
   }, [roomId, token]);
 
-  const sendMessage = (message: string) => {
-    if (socket && message.trim().length > 0) {
-      socket.send(JSON.stringify({ type: "chat", roomId, message }));
+  const sendMessage = (message: string, gifUrl?: string) => {
+    if (socket && (message.trim().length > 0 || gifUrl)) {
+      socket.send(JSON.stringify({ type: "chat", roomId, message, gifUrl }));
     }
   };
 

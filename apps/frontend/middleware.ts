@@ -11,7 +11,7 @@ export async function middleware(req: NextRequest) {
   try {
     // Verify the token by making a request to the backend
     const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:3002";
-    const verifyRes = await fetch(`${backendUrl}/verify-token`, {
+    const verifyRes = await fetch(`${backendUrl}/me`, {
       method: "POST",
       headers: {
         Authorization: `Bearer ${token}`,

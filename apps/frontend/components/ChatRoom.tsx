@@ -18,6 +18,10 @@ import { toast } from "sonner";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "./ui/dialog";
 import { ChatActions, verifyPasscode } from "./ChatActions";
 import { Label } from "./ui/label";
+import GifSelector from "./GifSelector";
+import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
+import Image from "next/image";
+import { Gif } from "@giphy/react-components";
 
 type Props = {
   roomId: string;
@@ -27,6 +31,7 @@ interface Message {
   id: string;
   message: string;
   userId: string;
+  gifUrl?: string;
 }
 
 const ChatRoom = ({ roomId }: Props) => {
@@ -57,7 +62,7 @@ const ChatRoom = ({ roomId }: Props) => {
   }, [roomId]);
 
   useEffect(() => {
-    const roomName = user.rooms.find((item) => item.id == roomId);
+    const roomName = user?.rooms?.find((item) => item.id == roomId);
     setTitle(roomName?.slug || "");
     setComponent(
       <ChatActions
@@ -121,11 +126,24 @@ const ChatRoom = ({ roomId }: Props) => {
                   : "bg-red-300 text-black self-start"
               }`}
             >
-              {msg?.message}
+              {msg?.message && <div>{msg.message}</div>}
+              {msg?.message && <div>{msg.message}</div>}
+              {msg?.gifUrl && (
+                console.log("GIF",msg.gifUrl),
+  <Image
+  width={200}
+  height={200}
+    src={msg.gifUrl} 
+    alt="GIF"
+    className="rounded-md "
+    loading="lazy"
+  />
+)}
             </div>
           ))
         )}
       </div>
+      <Popover>
       <div className="fixed max-w-3/4 bottom-0 flex gap-2 px-4 py-2 dark:bg-black bg-light">
         <Input
           className="w-full"
@@ -138,7 +156,19 @@ const ChatRoom = ({ roomId }: Props) => {
         >
           Send
         </Button>
+        <div className="">
+            <PopoverTrigger>
+              <div>GIF</div>
+            </PopoverTrigger>
+            <PopoverContent className="w-96">
+              <GifSelector onSelect={(gifId) => {
+                console.log("URL",gifId)
+                sendMessage("", gifId)
+                }} />
+            </PopoverContent>
+        </div>
       </div>
+          </Popover>
     </div>
   );
 };
