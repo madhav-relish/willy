@@ -33,11 +33,9 @@ const Signup = () => {
   });
 
   const onSubmit = async(data: signupFormSchema)=>{
-    console.log("Submitted data::", data)
     try{
       const response = await axios.post(`http://localhost:3002/signup`, data)
       localStorage.setItem("accessToken", response.data?.token)
-      console.log("DATA::", response.data)
       toast.success("Signed in successfully!" )
       router.push('/chat')
     }catch(error){

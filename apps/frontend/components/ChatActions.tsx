@@ -56,13 +56,6 @@ export const ChatActions = ({
     if (Boolean(savedPasscode)) setIsChatLocked(true);
   }, [roomId]);
 
-  useEffect(() => {
-    console.log("Action::", isChatLocked);
-    console.log("Hello", !isChatLocked && Boolean(savedPasscode));
-  }, [isChatLocked]);
-
-  console.log("ACtion::", isChatLocked);
-
   const handleSetOrUpdatePasscode = async () => {
     if (passcode !== confirmPasscode) {
       toast.error("Passcodes didn't match!");

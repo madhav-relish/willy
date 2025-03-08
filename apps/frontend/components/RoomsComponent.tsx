@@ -38,17 +38,7 @@ const RoomsComponent = (props: Props) => {
           toast.error("Error while creating the room")
       }
     }
-  
-    const handleGetAllRooms = async()=>{
-      try{
-        const data = await getAllRoomsOfUser()
-        
-        console.log("DATA Rooms::", data)
-      }catch(error){
-        console.error("Error while fetching all room", error)
-        toast.error("Error while fetching all room")
-      }
-    }
+
   return (
     <div>
       <Input
