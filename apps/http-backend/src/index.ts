@@ -3,11 +3,11 @@ import { prismaClient } from "@repo/db/client"
 import express from "express"
 import jwt from "jsonwebtoken"
 import { CreateRoomSchema, CreateUserSchema, SigninSchema } from '@repo/common/types'
-import { middleware } from "./middleware"
+import { middleware } from "./middleware.js"
 import cookieParser from "cookie-parser";
 import cors from 'cors'
 import bcrypt from 'bcryptjs'
-import authRoute from './integrations/github/route'
+import authRoute from './integrations/github/route.js'
 
 const app = express();
 app.use(cookieParser())

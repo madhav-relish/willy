@@ -1,12 +1,12 @@
 
-import { encrypt, decrypt } from '../../utils/encryption';
+import { encrypt, decrypt } from '../../utils/encryption.js';
 import { Octokit } from '@octokit/rest';
 import { OAuthApp } from '@octokit/oauth-app';
 import { prismaClient } from '@repo/db/client';
 
 const oauthApp = new OAuthApp({
-  clientId: process.env.GITHUB_CLIENT_ID || "",
-  clientSecret: process.env.GITHUB_CLIENT_SECRET || ""
+  clientId: "Iv23liGFnwBtAHcZLgg0",
+  clientSecret: "8d0277aa23384853179bab324254c98067f76ee2"
 });
 
 export const createGitHubIntegration = async (userId: string, code: string) => {

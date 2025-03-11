@@ -2,6 +2,7 @@
 import React from 'react'
 import { IntegrationCard } from './IntegrationCard'
 import { integrations } from '@/lib/constants'
+import { GithubIntegration } from './GithubIntegration'
 
 type Props = {}
 
@@ -11,6 +12,7 @@ const IntegrationsComponent = (props: Props) => {
             {integrations.map((integration) => (
                 <IntegrationCard key={integration.name} name={integration.name} logo={integration.logo} description={integration.description} />
             ))}
+            <GithubIntegration/>
         </div>
     )
 }
