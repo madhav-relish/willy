@@ -45,7 +45,7 @@ model Chat{
 }
 
 model Integrations{
-  id Int @id @default(autoincrement())
+  id String @id @default(uuid())
   integrationType String
   token String
   isActive Boolean
