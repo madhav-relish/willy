@@ -22,6 +22,7 @@ model User{
   avatar String?
   rooms Room[]
   chats Chat[]
+  Integrations Integrations[]
 }
 
 model Room{
@@ -40,5 +41,14 @@ model Chat{
   userId String 
   gifUrl String?
   room Room  @relation(fields: [roomId], references: [id])
+  user User @relation(fields: [userId], references: [id])
+}
+
+model Integrations{
+  id Int @id @default(autoincrement())
+  integrationType String
+  token String
+  isActive Boolean
+  userId String
   user User @relation(fields: [userId], references: [id])
 }
