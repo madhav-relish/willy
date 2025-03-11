@@ -51,13 +51,13 @@ export const sidebarMenu = {
       },
 
       {
-        title: "Models",
+        title: "Integrations",
         url: "#",
         icon: Bot,
         items: [
           {
             title: "GitHub",
-            url: "#",
+            url: "/integrations/github",
           },
           {
             title: "Discord",

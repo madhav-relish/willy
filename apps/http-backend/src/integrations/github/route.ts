@@ -1,6 +1,6 @@
 import express from 'express';
 import { middleware } from '../../middleware.js';
-import { createGitHubIntegration, getGitHubIntegration } from './service.js';
+import { createGitHubIntegration, getAllGithubNotifications, getGitHubIntegration } from './service.js';
 import { prismaClient } from '@repo/db/client';
 import crypto from 'crypto';
 
@@ -20,7 +20,7 @@ router.get('/github', middleware, (req, res) => {
     expiresAt: Date.now() + 5 * 60 * 1000
   });
 
-  const redirectUrl = `https://github.com/login/oauth/authorize?client_id=Iv23liGFnwBtAHcZLgg0&scope=repo,user,notifications&state=${state}`;
+  const redirectUrl = `https://github.com/login/oauth/authorize?client_id=Ov23liwvJfimL3q75Vl9&scope=repo,user,notifications,read:org&state=${state}`;
   res.json({ authUrl: redirectUrl });
 });
 
@@ -64,5 +64,31 @@ router.get('/github/status', middleware, async (req, res) => {
     res.status(500).json({ error: "Failed to get integration status" });
   }
 });
+
+
+router.get('/github/all-notifications', middleware, async (req, res) => {
+    // @ts-ignore
+    const userId = req.userId;
+
+    try {
+      const integration = await getGitHubIntegration(userId)
+      if(!integration) {
+         res.status(401).json({
+          message: "Github is not integrated"
+        })
+        return
+      }
+
+      const notifications = await getAllGithubNotifications(integration.accessToken)
+       res.status(200).json(notifications)
+       return
+    } catch(error) {
+      console.error("Error while fetching notifications:", error)
+       res.status(500).json({
+        message: "Failed to fetch notifications"
+      })
+      return
+    }
+})
 
 export default router;

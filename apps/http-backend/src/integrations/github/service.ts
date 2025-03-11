@@ -1,12 +1,11 @@
-
 import { encrypt, decrypt } from '../../utils/encryption.js';
 import { Octokit } from '@octokit/rest';
 import { OAuthApp } from '@octokit/oauth-app';
 import { prismaClient } from '@repo/db/client';
 
 const oauthApp = new OAuthApp({
-  clientId: "Iv23liGFnwBtAHcZLgg0",
-  clientSecret: "8d0277aa23384853179bab324254c98067f76ee2"
+  clientId: "Ov23liwvJfimL3q75Vl9",
+  clientSecret: "1ae865fbb7042817448de668c81fa0212221c6dd"
 });
 
 export const createGitHubIntegration = async (userId: string, code: string) => {
@@ -67,3 +66,28 @@ export const getGitHubIntegration = async (userId: string) => {
 
   return null;
 };
+
+export const getAllGithubNotifications = async (accessToken: string) => {
+  const octokit = new Octokit({
+    auth: accessToken,
+    headers: {
+      accept: 'application/vnd.github.v3+json'
+    }
+  });
+
+  try {
+    const { data: allNotifications } = await octokit.rest.activity.listNotificationsForAuthenticatedUser({
+      all: true,
+      per_page: 100,
+      headers: {
+        'If-None-Match': ''  // Ensure we get fresh data
+      }
+    });
+    return allNotifications;
+  } catch (error: any) {
+    if (error.status === 403) {
+      throw new Error('Insufficient permissions. Please reconnect your GitHub account.');
+    }
+    throw error;
+  }
+}
