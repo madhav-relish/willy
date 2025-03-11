@@ -12,6 +12,7 @@ import {
   SidebarFooter,
   SidebarHeader,
   SidebarRail,
+  SidebarTrigger,
 } from "@/components/ui/sidebar";
 import { useUserStore } from "@/store/useUserStore";
 import { sidebarMenu } from "@/lib/constants";
@@ -50,9 +51,12 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
     <>
     {isHidden ? <></> :<Sidebar hidden collapsible="icon" {...props}>
-      <SidebarHeader>
+      <SidebarHeader className="flex flex-row items-center gap-2">
         <TeamSwitcher teams={updatedSidebarMenu.teams} />
+        <SidebarTrigger />
       </SidebarHeader>
+    {!isHidden &&  <SidebarTrigger />}
+
       <SidebarContent>
         <NavMain items={updatedSidebarMenu.navMain} />
         <NavProjects projects={updatedSidebarMenu.projects} />

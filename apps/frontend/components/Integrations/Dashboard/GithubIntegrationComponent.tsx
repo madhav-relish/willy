@@ -1,5 +1,6 @@
 "use client";
 import { apiClient } from "@/lib/api";
+import { useNotification } from "@/store/useNotification";
 import Link from "next/link";
 import React, { useEffect, useState } from "react";
 
@@ -7,6 +8,7 @@ const GithubIntegrationComponent = () => {
   const [notifications, setNotifications] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const { setGithubNotifications } = useNotification();
 
   useEffect(() => {
     const fetchGithubNotifications = async () => {
@@ -14,6 +16,7 @@ const GithubIntegrationComponent = () => {
         setLoading(true);
         const response = await apiClient("/auth/github/all-notifications");
         setNotifications(response.data);
+        setGithubNotifications(response.data)
       } catch (error) {
         setError("Failed to fetch notifications");
         console.error("Error while fetching github notifications:", error);
