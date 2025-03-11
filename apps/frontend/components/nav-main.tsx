@@ -1,6 +1,6 @@
 "use client"
 
-import { ChevronRight, type LucideIcon } from "lucide-react"
+import { ChevronRight, Forward, Link2Icon, MoreHorizontal, Trash2, type LucideIcon } from "lucide-react"
 
 import {
   Collapsible,
@@ -11,12 +11,21 @@ import {
   SidebarGroup,
   SidebarGroupLabel,
   SidebarMenu,
+  SidebarMenuAction,
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarMenuSub,
   SidebarMenuSubButton,
   SidebarMenuSubItem,
+  useSidebar,
 } from "@/components/ui/sidebar"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 import Link from "next/link"
 
 export function NavMain({
@@ -33,6 +42,7 @@ export function NavMain({
     }[]
   }[]
 }) {
+  const { isMobile } = useSidebar()
   return (
     <SidebarGroup>
       <SidebarGroupLabel>Platform</SidebarGroupLabel>
@@ -60,7 +70,9 @@ export function NavMain({
                         <Link href={subItem.url}>
                           <span>{subItem.title}</span>
                         </Link>
+                        
                       </SidebarMenuSubButton>
+                      
                     </SidebarMenuSubItem>
                   ))}
                 </SidebarMenuSub>

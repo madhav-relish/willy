@@ -9,6 +9,7 @@ import {
     PieChart,
     Settings2,
     SquareTerminal,
+    StepForwardIcon,
   } from "lucide-react"
 
 export const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_ENDPOINT
@@ -48,21 +49,22 @@ export const sidebarMenu = {
           
         ],
       },
+
       {
         title: "Models",
         url: "#",
         icon: Bot,
         items: [
           {
-            title: "Genesis",
+            title: "GitHub",
             url: "#",
           },
           {
-            title: "Explorer",
+            title: "Discord",
             url: "#",
           },
           {
-            title: "Quantum",
+            title: "Slack",
             url: "#",
           },
         ],
@@ -132,3 +134,11 @@ export const sidebarMenu = {
       },
     ],
   }
+
+
+ export const integrations = [
+    { name: 'GitHub', logo: 'https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png', description: 'A platform for version control and collaboration.' },
+    { name: 'Discord', logo: 'https://cdn.worldvectorlogo.com/logos/discord-logo.svg', description: 'A voice, video, and text communication service.' },
+    { name: 'Slack', logo: 'https://cdn.worldvectorlogo.com/logos/slack-new-logo.svg', description: 'A messaging app for teams.' },
+    { name: 'Notion', logo: 'https://upload.wikimedia.org/wikipedia/commons/e/e9/Notion-logo.svg', description: 'An all-in-one workspace for notes, tasks, and collaboration.' },
+]

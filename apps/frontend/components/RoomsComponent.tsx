@@ -40,7 +40,7 @@ const RoomsComponent = (props: Props) => {
     }
 
   return (
-    <div className="h-full mt-16">
+    <div className="h-full">
       <Input
       className="mb-3"
         value={userInput}
