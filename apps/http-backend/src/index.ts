@@ -264,3 +264,5 @@ app.post("/verify-token",middleware, (req, res) => {
        return
     }
   });
+
+  app.use("/auth",  middleware, authRoutes)
