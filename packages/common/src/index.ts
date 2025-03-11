@@ -15,3 +15,11 @@ export const SigninSchema = z.object({
 export const CreateRoomSchema = z.object({
     name: z.string().min(3).max(30),
 })
+
+export const IntegrationsSchema = z.object({
+    id: z.string(),
+    token: z.string(),
+    isActive: z.boolean(),
+    integrationType: z.string(),
+    userId: z.string()
+})
