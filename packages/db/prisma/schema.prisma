@@ -13,6 +13,11 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum IntegrationType {
+  GITHUB
+  DISCORD
+  SLACK
+}
 
 model User{
   id String @id @default(uuid())
@@ -22,7 +27,7 @@ model User{
   avatar String?
   rooms Room[]
   chats Chat[]
-  Integrations Integrations[]
+  Integrations Integration[]
 }
 
 model Room{
@@ -44,11 +49,19 @@ model Chat{
   user User @relation(fields: [userId], references: [id])
 }
 
-model Integrations{
-  id String @id @default(uuid())
-  integrationType String
-  token String
-  isActive Boolean
-  userId String
-  user User @relation(fields: [userId], references: [id])
+model Integration {
+  id              String         @id @default(cuid())
+  type            IntegrationType
+  accessToken     String        // Encrypted
+  refreshToken    String?       // Encrypted, optional
+  tokenExpiresAt  DateTime?
+  scope           String[]
+  metadata        Json?         // Store additional provider-specific data
+  isActive        Boolean       @default(true)
+  user            User          @relation(fields: [userId], references: [id])
+  userId          String
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  @@unique([userId, type])
 }
