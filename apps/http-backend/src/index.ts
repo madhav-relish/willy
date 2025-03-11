@@ -7,6 +7,7 @@ import { middleware } from "./middleware"
 import cookieParser from "cookie-parser";
 import cors from 'cors'
 import bcrypt from 'bcryptjs'
+import authRoute from './integrations/github/route'
 
 const app = express();
 app.use(cookieParser())
@@ -242,10 +243,6 @@ app.get('/all-rooms', middleware, async (req, res) => {
     }
 })
 
-app.listen(3002, () => {
-    console.log("Server running on http://localhost:3002");
-});
-
 app.post("/verify-token",middleware, (req, res) => {
     //@ts-ignore
     const userId = req.userId
@@ -265,4 +262,9 @@ app.post("/verify-token",middleware, (req, res) => {
     }
   });
 
-  app.use("/auth",  middleware, authRoutes)
+  app.use("/auth", authRoute)
+
+app.listen(3002, () => {
+    console.log("Server running on http://localhost:3002");
+});
+

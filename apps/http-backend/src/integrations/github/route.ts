@@ -1,43 +1,46 @@
-import express from 'express'
-import { OAuthApp } from '@octokit/oauth-app'
-import { Octokit } from '@octokit/rest'
+import express from 'express';
+import { middleware } from '../../middleware';
+import { createGitHubIntegration, getGitHubIntegration } from './service';
 
-const router: express.Router = express.Router()
+const router: express.Router = express.Router();
 
-const oauthApp = new OAuthApp({
-    clientId: process.env.GITHUB_CLIENT_ID ||  "",
-    clientSecret: process.env.GITHUB_CLIENT_SECRET ||  ""
-})
+router.get('/github', (req, res) => {
+  const redirectUrl = `https://github.com/login/oauth/authorize?client_id=${process.env.GITHUB_CLIENT_ID}&scope=repo,user,notifications`;
+  res.redirect(redirectUrl);
+});
 
+router.get('/github/callback', middleware, async (req, res) => {
+  const { code } = req.query;
+  // @ts-ignore
+  const userId = req.userId;
 
-// Redirect user to github oauth url
-router.get('/github', (req, res)=>{
-    const redirectUrl = `https://github.com/login/oauth/authorize?client_id=${process.env.GITHUB_CLIENT_ID}&scope=read:user,user:email`;
-    res.redirect(redirectUrl)
-})
+  if (!code) {
+    res.status(400).json({ error: "Missing code" });
+    return;
+  }
 
-//Github redirects back with code
-router.get('/github/callback', async(req,res)=>{
-    const { code } = req.query
-    if (!code) { res.status(400).json({ error: "Missing code" });
-    return
-}
-
-try{
-    //exchanging code for token
-    const { authentication } = await oauthApp.createToken({code: code as string})
-
-   // fetch github user details
-   const octokit = new Octokit({ auth: authentication.token})
-    const { data: user } = await octokit.request("GET /user");
-
-    res.redirect(`http://localhost:3000/integrations?token=${authentication.token}`);
-
- }catch(error){
+  try {
+    const integration = await createGitHubIntegration(userId, code as string);
+    res.redirect(`${process.env.FRONTEND_URL}/integrations?success=true`);
+  } catch (error) {
     console.error("GitHub OAuth Error:", error);
     res.status(500).json({ error: "OAuth Failed" });
-}
-})
+  }
+});
 
+router.get('/github/status', middleware, async (req, res) => {
+  // @ts-ignore
+  const userId = req.userId;
+  
+  try {
+    const integration = await getGitHubIntegration(userId);
+    res.json({ 
+      isConnected: !!integration,
+      integration
+    });
+  } catch (error) {
+    res.status(500).json({ error: "Failed to get integration status" });
+  }
+});
 
-export default router
+export default router;
