@@ -17,9 +17,13 @@ export const CreateRoomSchema = z.object({
 })
 
 export const IntegrationsSchema = z.object({
-    id: z.string(),
-    token: z.string(),
-    isActive: z.boolean(),
-    integrationType: z.string(),
-    userId: z.string()
+    type: z.enum(["GITHUB", "DISCORD", "SLACK"]),
+    accessToken: z.string(),
+    refreshToken: z.string().optional(),
+    tokenExpiresAt: z.date().optional(),
+    scope: z.array(z.string()).optional(),
+    metadata: z.record(z.any()).optional(),
+    isActive: z.boolean().optional(),
+    userId: z.string(),
 })
+
