@@ -292,6 +292,9 @@ importers:
       '@repo/typescript-config':
         specifier: workspace:*
         version: link:../typescript-config
+      typescript:
+        specifier: ^5.3.0
+        version: 5.5.4
 
   packages/common:
     dependencies:
