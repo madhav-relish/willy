@@ -1,0 +1,8 @@
+[build]
+command = "corepack enable && pnpm install --frozen-lockfile"
+
+[start]
+command = "pnpm run start"
+
+[env]
+NODE_VERSION = "18"
