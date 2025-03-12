@@ -1,8 +1,9 @@
 [build]
-command = "corepack enable && pnpm install --frozen-lockfile"
+install = "corepack enable && pnpm install --frozen-lockfile"
+command = "pnpm turbo run db:generate --filter=@repo/db && pnpm run build"
 
 [start]
-command = "pnpm run start"
+command = "pnpm start"
 
 [env]
 NODE_VERSION = "18"
