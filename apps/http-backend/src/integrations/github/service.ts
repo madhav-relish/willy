@@ -1,14 +1,17 @@
+
 import { encrypt, decrypt } from '../../utils/encryption.js';
 import { Octokit } from '@octokit/rest';
 import { OAuthApp } from '@octokit/oauth-app';
-import { prismaClient } from '@repo/db/client';
+import { Prisma, prismaClient } from '@repo/db/client';
+
+
 
 const oauthApp = new OAuthApp({
   clientId: "Ov23liwvJfimL3q75Vl9",
   clientSecret: "1ae865fbb7042817448de668c81fa0212221c6dd"
 });
 
-export const createGitHubIntegration = async (userId: string, code: string) => {
+export const createGitHubIntegration = async (userId: string, code: string): Promise<Prisma.IntegrationGetPayload<{}>> => {
   const { authentication } = await oauthApp.createToken({
     code: code as string
   });
@@ -47,7 +50,7 @@ export const createGitHubIntegration = async (userId: string, code: string) => {
   return integration;
 };
 
-export const getGitHubIntegration = async (userId: string) => {
+export const getGitHubIntegration = async (userId: string): Promise<Prisma.IntegrationGetPayload<{}> | null> => {
   const integration = await prismaClient.integration.findUnique({
     where: {
       userId_type: {

@@ -3,10 +3,20 @@
   "ui": "tui",
   "tasks": {
     "db:generate": {
-      "outputs": ["packages/db/node_modules/@prisma/client"]
+      "cache": false,
+      "outputs": ["packages/db/generated/client"]
+    },
+    "db:migrate": {
+      "cache": false,
+      "persistent": true,
+      "outputs": ["packages/db/generated/client"]
+    },
+    "db:deploy": {
+      "cache": false,
+      "outputs": ["packages/db/generated/client"]
     },
     "build": {
-      "dependsOn": ["db:generate", "^build"],
+      "dependsOn": ["^db:generate", "^build"],
       "inputs": ["$TURBO_DEFAULT$", ".env*"],
       "outputs": [".next/**", "!.next/cache/**"]
     },
@@ -17,6 +27,7 @@
       "dependsOn": ["^check-types"]
     },
     "dev": {
+      "dependsOn": ["^db:generate"],
       "cache": false,
       "persistent": true
     }
