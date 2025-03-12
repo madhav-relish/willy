@@ -1,5 +1,5 @@
 [build]
-install = "corepack enable && pnpm install --frozen-lockfile"
+install = "npm i -g pnpm && pnpm install --frozen-lockfile"
 command = "pnpm turbo run db:generate --filter=@repo/db && pnpm run build"
 
 [start]
@@ -7,3 +7,4 @@ command = "pnpm start"
 
 [env]
 NODE_VERSION = "18"
+NIXPACKS_PNPM = "true"
