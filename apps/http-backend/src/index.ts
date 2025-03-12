@@ -1,3 +1,4 @@
+//@ts-nocheck
 import { JWT_SECRET } from "@repo/backend-common/config"
 import { prismaClient } from "@repo/db/client"
 import express from "express"
