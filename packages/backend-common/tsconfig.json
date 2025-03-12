@@ -1,15 +1,7 @@
 {
     "extends": "@repo/typescript-config/base.json",
     "compilerOptions": {
-        "outDir": "dist",
-        "module": "ESNext",
-        "moduleResolution": "Node",
-        "target": "ESNext",
-        "declaration": true,
-        "sourceMap": true,
-        "strict": true
-    },
-    "include": [
-        "src"
-    ]
+        "rootDir": "./src",
+        "outDir": "./dist"
+    }
 }
