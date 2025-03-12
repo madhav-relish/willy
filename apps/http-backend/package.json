@@ -8,7 +8,7 @@
     "dev": "pnpm run build && node ./dist/index.js",
     "dev:nodemon": "nodemon --watch 'src/**/*.ts' --exec 'ts-node' src/index.ts",
     "start": "node ./dist/index.js",
-    "postinstall": "prisma generate"
+    "postinstall": "npx prisma generate"
   },
   "dependencies": {
     "@octokit/oauth-app": "^7.1.6",
