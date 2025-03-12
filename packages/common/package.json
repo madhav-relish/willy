@@ -2,12 +2,11 @@
   "name": "@repo/common",
   "version": "1.0.0",
   "exports": {
-    "./types": "./dist/index.js"
+    "./types": "./src/index.ts"
   },
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "tsc -b"
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
   "devDependencies": {
     "@repo/typescript-config": "workspace:*"
