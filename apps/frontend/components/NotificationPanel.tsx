@@ -77,13 +77,13 @@ const NotificationPanel = (props: Props) => {
                   <ul className="">
                     {notifications.map((notification: any) => (
                       <Link
+                      key={notification.id}
                         className=""
                         href={`${notification?.repository?.html_url}`}
                         target="_blank"
                       >
                         <li
                           className="flex items-center gap-2 py-2 text-sm hover:bg-blue-800 hover:cursor-pointer rounded-2xl"
-                          key={notification.id}
                         >
                           <img
                             className="h-10 w-10 rounded-full"
