@@ -5,6 +5,7 @@ import {
   Bell,
   ChevronsUpDown,
   CreditCard,
+  FastForwardIcon,
   LogOut,
   Sparkles,
 } from "lucide-react"
@@ -100,9 +101,9 @@ export function NavUser({
                 <BadgeCheck />
                 Account
               </DropdownMenuItem>
-              <DropdownMenuItem>
-                <CreditCard />
-                Billing
+              <DropdownMenuItem onClick={()=>router.push('/integrations')}>
+                <FastForwardIcon/>
+                  Integrations
               </DropdownMenuItem>
               <DropdownMenuItem>
                 <Bell />

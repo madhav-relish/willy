@@ -83,32 +83,29 @@ wss.on('connection', function connection(ws, req) {
         user.rooms = user.rooms.filter(room => room === parsedData.room)
       }
       
-      console.log("PARSED DATA::", parsedData)
       if(parsedData.type === "chat"){
-        console.log("msg::", parsedData.message)
-        const roomId = parsedData.roomId
-        const message = parsedData.message
+        const { roomId, message, gifUrl } = parsedData;
 
-        //Update the db with latest message to that roomId
-     const chat =   await prismaClient.chat.create({
-          data:{
+        // Update the db with the latest message or GIF to that roomId
+        const chat = await prismaClient.chat.create({
+          data: {
             roomId: Number(roomId),
             message,
-            userId
-          }
-        })
-
-        console.log("CHAT::", chat)
+            gifUrl,
+            userId,
+          },
+        });
 
         users.forEach(user => {
           user.ws.send(JSON.stringify({
             id: chat.id,
             roomId: chat.roomId,
             message: chat.message,
+            gifUrl: chat.gifUrl,
             userId: chat.userId,
-            type: "chat"
-          }))
-        })
+            type: "chat",
+          }));
+        });
       }
     }catch(error){
       console.log("Error while parsing the ws data::", error)

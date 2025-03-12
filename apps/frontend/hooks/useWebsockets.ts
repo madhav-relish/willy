@@ -1,15 +1,18 @@
 import { useEffect, useState } from "react";
+import { useUserStore } from "@/store/useUserStore";
 
 export interface ChatMessage {
-  message: string;
+  id: string;
+  message?: string;
+  gifUrl?: string;
   roomId: string;
   userId: string;
-  id: string
 }
 
 export const useWebSocket = (roomId: string, token: string) => {
   const [socket, setSocket] = useState<WebSocket | null>(null);
-  const [chatMessages, setChatMessages] = useState();
+  const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
+  const { user } = useUserStore();
 
   useEffect(() => {
     if (!roomId || !token) return;
@@ -27,7 +30,11 @@ export const useWebSocket = (roomId: string, token: string) => {
       console.log("Received message:", data);
 
       if (data.type === "chat") {
-        setChatMessages(data);
+        setChatMessages((prev) => [...prev, data]);
+        if (data.userId !== user.userId) {
+          const isChatLocked = localStorage.getItem(`chat_passcode_${roomId}`)
+          showNotification(isChatLocked ? "New Message" : data.message ||  "New message", data.gifUrl && '1 New GIF');
+        }
       }
     };
 
@@ -39,13 +46,28 @@ export const useWebSocket = (roomId: string, token: string) => {
     return () => {
       ws.close();
     };
-  }, [roomId, token]);
+  }, [roomId, token, user.userId]);
 
-  const sendMessage = (message: string) => {
-    if (socket && message.trim().length > 0) {
-      socket.send(JSON.stringify({ type: "chat", roomId, message }));
+  const sendMessage = (message: string, gifUrl?: string) => {
+    if (socket && (message.trim().length > 0 || gifUrl)) {
+      socket.send(JSON.stringify({ type: "chat", roomId, message, gifUrl }));
     }
   };
+
+  const showNotification = (message: string, gifUrl?: string) => {
+    if (Notification.permission === "granted") {
+      new Notification("New Message", {
+        body: message,
+        icon: gifUrl,
+      });
+    }
+  };
+
+  useEffect(() => {
+    if (Notification.permission !== "granted") {
+      Notification.requestPermission();
+    }
+  }, []);
 
   return { chatMessages, sendMessage, isConnected: !!socket };
 };

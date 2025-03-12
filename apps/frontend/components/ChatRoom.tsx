@@ -11,6 +11,8 @@ import {
   LockKeyholeIcon,
   MenuSquareIcon,
   MessageCircleCodeIcon,
+  SendHorizonalIcon,
+  StickerIcon,
 } from "lucide-react";
 import { useTopbar } from "@/store/useTopbar";
 import PasscodePopup from "./PasscodePopup";
@@ -18,6 +20,10 @@ import { toast } from "sonner";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "./ui/dialog";
 import { ChatActions, verifyPasscode } from "./ChatActions";
 import { Label } from "./ui/label";
+import GifSelector from "./GifSelector";
+import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
+import Image from "next/image";
+import { Gif } from "@giphy/react-components";
 
 type Props = {
   roomId: string;
@@ -27,6 +33,8 @@ interface Message {
   id: string;
   message: string;
   userId: string;
+  gifUrl?: string;
+  roomId: string;
 }
 
 const ChatRoom = ({ roomId }: Props) => {
@@ -41,6 +49,7 @@ const ChatRoom = ({ roomId }: Props) => {
   const [allMessages, setAllMessages] = useState<Message[]>([]);
   const [isChatLocked, setIsChatLocked] = useState<boolean>(false);
   const [passcode, setPasscode] = useState("");
+  const [isSelectingGif, setIsSelectingGif] = useState(false);
 
   useEffect(() => {
     const fetchMessages = async () => {
@@ -57,7 +66,7 @@ const ChatRoom = ({ roomId }: Props) => {
   }, [roomId]);
 
   useEffect(() => {
-    const roomName = user.rooms.find((item) => item.id == roomId);
+    const roomName = user?.rooms?.find((item) => item.id == roomId);
     setTitle(roomName?.slug || "");
     setComponent(
       <ChatActions
@@ -66,10 +75,13 @@ const ChatRoom = ({ roomId }: Props) => {
         isChatLocked={isChatLocked}
       />
     );
-    if (chatMessages) {
-      setAllMessages((prev) => [...prev, chatMessages]);
+    if (chatMessages.length > 0) {
+      setAllMessages((prev) => [
+        ...prev,
+        ...chatMessages.filter((msg): msg is Message => msg.message !== undefined && msg.message !== null) as Message[],
+      ]);
     }
-  }, [chatMessages, user,isChatLocked]);
+  }, [chatMessages, user, isChatLocked]);
 
   const handleUnlockChat = async() => {
     const isValid = await verifyPasscode(passcode, roomId);
@@ -81,7 +93,6 @@ const ChatRoom = ({ roomId }: Props) => {
       toast.error("Incorrect Passcode!");
     }
   };
-
 
   return (
     <div className={`flex flex-col h-full gap-4 p-4 pb-0 `}>
@@ -121,24 +132,57 @@ const ChatRoom = ({ roomId }: Props) => {
                   : "bg-red-300 text-black self-start"
               }`}
             >
-              {msg?.message}
+              {msg?.message && <div>{msg.message}</div>}
+              {msg?.gifUrl &&
+                (console.log("GIF", msg.gifUrl),
+                (
+                  <img
+                    // width={200}
+                    // height={200}
+                    src={msg.gifUrl}
+                    alt="GIF"
+                    className="rounded-md h-52 w-52"
+                    // loading="lazy"
+                  />
+                ))}
             </div>
           ))
         )}
       </div>
-      <div className="fixed max-w-3/4 bottom-0 flex gap-2 px-4 py-2 dark:bg-black bg-light">
-        <Input
-          className="w-full"
-          onChange={(e) => setInputText(e.target.value)}
-          value={inputText}
-        />
-        <Button
-          onClick={() => sendMessage(inputText)}
-          disabled={inputText.length === 0 || !isConnected || isChatLocked}
-        >
-          Send
-        </Button>
-      </div>
+      <Popover open={isSelectingGif} onOpenChange={(isOpen) => setIsSelectingGif(isOpen)}>
+        <div className="fixed max-w-3/4 bottom-0 flex gap-2 px-4 py-2 dark:bg-black bg-light">
+          <Input
+            className="w-full"
+            onChange={(e) => setInputText(e.target.value)}
+            value={inputText}
+          />
+          <Button
+          className="rounded-full w-10 h-10 "
+            onClick={() => {sendMessage(inputText)
+              setInputText("")
+            }}
+            disabled={inputText.length === 0 || !isConnected || isChatLocked}
+          >
+            <SendHorizonalIcon size={44} color="blue" fontSize={20}/>
+          </Button>
+          <div className="">
+            <PopoverTrigger >
+              <div className="bg-background border-4 overflow-hidden rounded-full w-10 h-10 flex items-center justify-center">
+                <StickerIcon size={34} color="teal" />
+              </div>
+            </PopoverTrigger>
+            <PopoverContent className="w-96">
+              <GifSelector
+                onSelect={(gifId) => {
+                  console.log("URL", gifId);
+                  sendMessage("", gifId);
+                  setIsSelectingGif(false);
+                }}
+              />
+            </PopoverContent>
+          </div>
+        </div>
+      </Popover>
     </div>
   );
 };

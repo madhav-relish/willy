@@ -12,6 +12,7 @@ import {
   SidebarFooter,
   SidebarHeader,
   SidebarRail,
+  SidebarTrigger,
 } from "@/components/ui/sidebar";
 import { useUserStore } from "@/store/useUserStore";
 import { sidebarMenu } from "@/lib/constants";
@@ -30,18 +31,18 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 
   const updatedSidebarMenu = { ...sidebarMenu };
 
-  const roomsSection = updatedSidebarMenu.navMain.find(
+  const roomsSection = updatedSidebarMenu?.navMain?.find(
     (ele) => ele.title === "Rooms"
   );
 
   updatedSidebarMenu.user = {
-    name: user.username || "Username",
-    email: user.email || "email",
+    name: user?.username || "Username",
+    email: user?.email || "email",
     avatar: "",
   };
 
   if (roomsSection) {
-    roomsSection.items = user.rooms.map((room) => ({
+    roomsSection.items = user?.rooms?.map((room) => ({
       title: room.slug,
       url: `/chat/${room.id}`,
     }));
@@ -50,15 +51,18 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
     <>
     {isHidden ? <></> :<Sidebar hidden collapsible="icon" {...props}>
-      <SidebarHeader>
+      <SidebarHeader className="flex flex-row items-center gap-2">
         <TeamSwitcher teams={updatedSidebarMenu.teams} />
+        <SidebarTrigger />
       </SidebarHeader>
+    {!isHidden &&  <SidebarTrigger />}
+
       <SidebarContent>
         <NavMain items={updatedSidebarMenu.navMain} />
         <NavProjects projects={updatedSidebarMenu.projects} />
       </SidebarContent>
       <SidebarFooter>
-        <NavUser user={updatedSidebarMenu.user} />
+        <NavUser user={updatedSidebarMenu?.user} />
       </SidebarFooter>
       <SidebarRail />
     </Sidebar>}

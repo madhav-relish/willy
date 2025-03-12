@@ -15,3 +15,15 @@ export const SigninSchema = z.object({
 export const CreateRoomSchema = z.object({
     name: z.string().min(3).max(30),
 })
+
+export const IntegrationsSchema = z.object({
+    type: z.enum(["GITHUB", "DISCORD", "SLACK"]),
+    accessToken: z.string(),
+    refreshToken: z.string().optional(),
+    tokenExpiresAt: z.date().optional(),
+    scope: z.array(z.string()).optional(),
+    metadata: z.record(z.any()).optional(),
+    isActive: z.boolean().optional(),
+    userId: z.string(),
+})
+
