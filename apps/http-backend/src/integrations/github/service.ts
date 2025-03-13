@@ -2,7 +2,8 @@
 import { encrypt, decrypt } from '../../utils/encryption.js';
 import { Octokit } from '@octokit/rest';
 import { OAuthApp } from '@octokit/oauth-app';
-import { Prisma, prismaClient } from '@repo/db/client';
+import { Prisma } from '@repo/db';
+import prismaClient from '@repo/db';
 
 
 
