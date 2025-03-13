@@ -1,0 +1,14 @@
+
+[phases.setup]
+nixPkgs = ['nodejs_18', 'npm']
+
+[phases.build]
+cmds = [
+  "pnpm install --frozen-lockfile",
+  "pnpm turbo run db:generate --filter=@repo/db",
+  "pnpm turbo run build"
+]
+
+[start]
+cmd = "pnpm --filter=@apps/http-backend run start"
+
