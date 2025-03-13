@@ -3,14 +3,9 @@
   "version": "1.0.0",
   "type": "module",
   "exports": {
-    ".": {
-      "types": "./dist/index.d.ts",
-      "import": "./dist/index.js",
-      "require": "./dist/index.js"
-    }
+    "./types": "./src/index.ts"
   },
-  "main": "./dist/index.js",
-  "types": "./dist/index.d.ts",
+  "main": "./src/index.ts",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build":"tsc -b"
@@ -24,8 +19,5 @@
   "description": "",
   "dependencies": {
     "zod": "^3.24.1"
-  },
-  "files": [
-    "dist/**"
-  ]
+  }
 }
