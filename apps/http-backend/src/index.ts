@@ -1,5 +1,5 @@
 
-import { JWT_SECRET } from "@repo/backend-common/config"
+// import { JWT_SECRET } from "@repo/backend-common/config"
 import { prismaClient } from "@repo/db/client"
 import express from "express"
 import jwt from "jsonwebtoken"
@@ -9,6 +9,9 @@ import cookieParser from "cookie-parser";
 import cors from 'cors'
 import bcrypt from 'bcryptjs'
 import authRoute from './integrations/github/route.js'
+
+
+export const JWT_SECRET = process.env.JWT_SECRET || "1234512345"
 
 const app = express();
 app.use(cookieParser())
