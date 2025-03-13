@@ -1,6 +1,6 @@
 
 // import { JWT_SECRET } from "@repo/backend-common/config"
-import  prismaClient  from "@repo/db"
+import  prismaClient  from "@repo/db/client"
 import express from "express"
 import jwt from "jsonwebtoken"
 
@@ -9,8 +9,7 @@ import cookieParser from "cookie-parser";
 import cors from 'cors'
 import bcrypt from 'bcryptjs'
 import authRoute from './integrations/github/route.js'
-import { CreateRoomSchema, CreateUserSchema, SigninSchema } from "@repo/common";
-
+import { CreateRoomSchema, CreateUserSchema, SigninSchema } from "@repo/common/types";
 
 export const JWT_SECRET = process.env.JWT_SECRET || "1234512345"
 

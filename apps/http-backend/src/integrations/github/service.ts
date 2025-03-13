@@ -2,10 +2,8 @@
 import { encrypt, decrypt } from '../../utils/encryption.js';
 import { Octokit } from '@octokit/rest';
 import { OAuthApp } from '@octokit/oauth-app';
-import { Prisma } from '@repo/db';
-import prismaClient from '@repo/db';
-
-
+import { Prisma } from '@repo/db/client';
+import prismaClient from '@repo/db/client';
 
 const oauthApp = new OAuthApp({
   clientId: "Ov23liwvJfimL3q75Vl9",
