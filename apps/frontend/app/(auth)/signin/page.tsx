@@ -9,7 +9,7 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { SigninSchema } from "@repo/common";
+import { SigninSchema, SigninInput } from "@repo/common";
 import z from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -18,19 +18,17 @@ import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { setCookie } from "cookies-next/client";
 
-type signinFromValues = z.infer<typeof SigninSchema>;
-
 const Signin = () => {
   const router = useRouter()
   const {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm<signinFromValues>({
+  } = useForm<SigninInput>({
     resolver: zodResolver(SigninSchema),
   });
 
-  const onSubmit = async(data: signinFromValues) => {
+  const onSubmit = async(data: SigninInput) => {
     try{
       const response = await axios.post(`http://localhost:3002/signin`, data)
       // localStorage.setItem("accessToken", response.data?.token)
