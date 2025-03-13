@@ -4,6 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "preinstall": "npx only-allow pnpm",
     "build": "tsc -b",
     "dev": "pnpm run build && node ./dist/index.js",
     "dev:nodemon": "nodemon --watch 'src/**/*.ts' --exec 'ts-node' src/index.ts",
