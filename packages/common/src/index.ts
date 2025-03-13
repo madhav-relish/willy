@@ -27,3 +27,7 @@ export const IntegrationsSchema = z.object({
     userId: z.string(),
 })
 
+export type CreateUserInput = z.infer<typeof CreateUserSchema>;
+export type SigninInput = z.infer<typeof SigninSchema>;
+export type CreateRoomInput = z.infer<typeof CreateRoomSchema>;
+
