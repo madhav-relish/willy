@@ -17,7 +17,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import axios from "axios";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
-import { CreateUserSchema } from "@repo/common";
+import { CreateUserSchema } from "@repo/common/types";
 
 type signupFormSchema = z.infer<typeof CreateUserSchema>;
 
