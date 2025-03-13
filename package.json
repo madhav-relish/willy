@@ -1,5 +1,5 @@
 {
-  "name": "suprdense-assignment",
+  "name": "willy",
   "private": true,
   "scripts": {
     "build": "turbo build",
