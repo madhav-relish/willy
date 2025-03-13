@@ -1,7 +1,6 @@
 import express from 'express';
 import { middleware } from '../../middleware.js';
 import { createGitHubIntegration, getAllGithubNotifications, getGitHubIntegration } from './service.js';
-import { prismaClient } from '@repo/db/client';
 import crypto from 'crypto';
 
 const router: express.Router = express.Router();

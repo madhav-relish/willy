@@ -1,6 +1,6 @@
 
 // import { JWT_SECRET } from "@repo/backend-common/config"
-import { prismaClient } from "@repo/db/client"
+import  prismaClient  from "@repo/db"
 import express from "express"
 import jwt from "jsonwebtoken"
 import { CreateRoomSchema, CreateUserSchema, SigninSchema } from '@repo/common/types'
